@@ -15,6 +15,7 @@ jobs:
   deploy-environments:
     name: Deploy environments
     runs-on: ubuntu-latest
+    environment: DEV
     env:
       TENANT_ID: 380adf45-465e-486c-92c1-a3a9e4f6c62d
       SUBSCRIPTION_ID: 3e1e6407-7334-4898-bb27-b68e97a6b32e
