@@ -27,9 +27,9 @@ jobs:
         uses: azure/login@v1
         with: >
           {"clientId":"${{ env.CLIENT_ID }}",
-           "clientSecret":"${{ secrets.AZURE_SP_SECRET }}",
-           "subscriptionId":"${{ env.SUBSCRIPTION_ID }}",
-           "tenantId":"${{ env.TENANT_ID }}"}
+          "clientSecret":"${{ secrets.AZURE_SP_SECRET }}",
+          "subscriptionId":"${{ env.SUBSCRIPTION_ID }}",
+          "tenantId":"${{ env.TENANT_ID }}"}
 
       - name: Deploy Bicep template
         uses: azure/arm-deploy@v2
