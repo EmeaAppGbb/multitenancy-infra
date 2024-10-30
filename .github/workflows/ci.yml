@@ -5,8 +5,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - main
-      - develop
+      - initial-pipeline
 
 permissions:
   id-token: write
