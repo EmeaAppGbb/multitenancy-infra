@@ -1,6 +1,6 @@
 using './main.bicep'
 
-param imageVersion = '001'
+param imageVersion = 'latest'
 
 param tenants = [
   {
