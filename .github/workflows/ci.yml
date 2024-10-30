@@ -49,9 +49,6 @@ jobs:
             . infra/Remove-Tenants.ps1
           azPSVersion: latest
 
-      - name: Load tenants
-        run: echo "TENANTS=$(jq -c . < infra/tenants.json)" >> $GITHUB_ENV
-
       - name: Deploy Bicep template
         uses: azure/arm-deploy@v2
         with:
@@ -60,4 +57,4 @@ jobs:
           template: infra/main.bicep
           region: westeurope
           parameters: >
-            infra/main.${{ env.ENVIRONMENT }}.bicepparam tenants=${{ env.TENANTS }}
+            infra/main.${{ env.ENVIRONMENT }}.bicepparam
