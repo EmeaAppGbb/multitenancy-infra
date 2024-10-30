@@ -1,0 +1,10 @@
+[
+    {
+        "name": "customer1",
+        "location": "westeurope"
+    },
+    {
+        "name": "customer2",
+        "location": "northeurope"
+    }
+]

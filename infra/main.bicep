@@ -1,21 +1,24 @@
 targetScope = 'subscription'
 
-param tenants array
 param imageVersion string
+param tenants array?
+
+var tenantList = tenants ?? loadJsonContent('tenants.json')
+var prefix = 'cns-demo2'
 
 resource resrouceGroup 'Microsoft.Resources/resourceGroups@2024-03-01' = [
-  for deployment in tenants: {
-    name: '${deployment.name}-rg'
+  for deployment in tenantList: {
+    name: '${prefix}-${deployment.name}'
     location: deployment.location
   }
 ]
 
 module resources 'modules/resources.bicep' = [
   for i in range(0, length(tenants)): {
-    name: 'cns-${tenants[i].name}'
+    name: '${prefix}-${tenantList[i].name}'
     scope: resrouceGroup[i]
     params: {
-      deployment: tenants[i]
+      deployment: tenantList[i]
       imageVersion: imageVersion
     }
   }
