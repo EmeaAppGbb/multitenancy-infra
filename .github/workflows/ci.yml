@@ -46,7 +46,8 @@ jobs:
         if: env.ENVIRONMENT == 'PROD'
         with:
           inlineScript: |
-            . infra/Remove-Tenants.ps1
+            cd infra
+            . ./Remove-Tenants.ps1
           azPSVersion: latest
 
       - name: Deploy Bicep template
