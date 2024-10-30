@@ -1,0 +1,46 @@
+---
+name: CI
+
+on:
+  workflow_dispatch:
+  # push:
+  #   branches:
+  #     - main
+  #     - develop
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy-environments:
+    name: Deploy environments
+    runs-on: ubuntu-latest
+    env:
+      TENANT_ID: 380adf45-465e-486c-92c1-a3a9e4f6c62d
+      SUBSCRIPTION_ID: 3e1e6407-7334-4898-bb27-b68e97a6b32e
+      CLIENT_ID: f2e9146b-f46e-4ddd-9367-4e4b9fa06fa9
+      ENVIRONMENT: ${{ github.ref == 'refs/heads/main' && 'PROD' || 'DEV' }}
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Azure login
+        uses: azure/login@v2
+        with:
+          creds: >
+            {
+            "clientId":"${{ env.CLIENT_ID }}",
+            "clientSecret":"${{ secrets.AZURE_SP_SECRET }}",
+            "subscriptionId":"${{ env.SUBSCRIPTION_ID }}",
+            "tenantId":"${{ env.TENANT_ID }}"
+            }
+
+      - name: Deploy Bicep template
+        uses: azure/arm-deploy@v2
+        with:
+          scope: subscription
+          subscriptionId: ${{ env.SUBSCRIPTION_ID }}
+          template: infra/main.bicep
+          region: westeurope
+          parameters: >
+            infra/main.${{ env.ENVIRONMENT }}.bicepparam

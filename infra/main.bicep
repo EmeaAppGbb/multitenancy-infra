@@ -1,4 +1,5 @@
 targetScope = 'subscription'
+
 param tenants array
 param imageVersion string
 
