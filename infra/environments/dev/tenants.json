@@ -1,0 +1,16 @@
+{
+    "environment": {
+        "name": "dev",
+        "imageversion": "1.0.0",
+        "tenants": [
+            {
+                "name": "tenant1",
+                "url": "http://localhost:8080"
+            },
+            {
+                "name": "tenant2",
+                "url": "http://localhost:8081"
+            }
+        ]
+    }
+}
