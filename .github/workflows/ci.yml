@@ -22,7 +22,7 @@ jobs:
       # https://portal.azure.com/?feature.msaljs=true#view/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/~/Overview/appId/f2e9146b-f46e-4ddd-9367-4e4b9fa06fa9/isMSAApp~/false
       # AppReg that has Owner permissions on the subscription
       CLIENT_ID: f2e9146b-f46e-4ddd-9367-4e4b9fa06fa9
-      ENVIRONMENT: PROD # ${{ github.ref == 'refs/heads/main' && 'PROD' || 'DEV' }}
+      ENVIRONMENT: ${{ github.ref == 'refs/heads/main' && 'PROD' || 'DEV' }}
     steps:
       - uses: actions/checkout@v4
 
