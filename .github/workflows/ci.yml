@@ -24,7 +24,7 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Azure login
-        uses: azure/login@v1
+        uses: azure/login@v2
         with: '{"clientId":"${{ env.CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_SP_SECRET }}","subscriptionId":"${{ env.SUBSCRIPTION_ID }}","tenantId":"${{ env.TENANT_ID }}"}'
 
       - name: Deploy Bicep template
