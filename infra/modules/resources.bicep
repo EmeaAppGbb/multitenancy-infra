@@ -1,8 +1,9 @@
 param deployment object
+param imageVersion string
 
 var nameInfix = deployment.name
 var location = deployment.location
-var containerImage = 'mcr.microsoft.com/azuredocs/containerapps-helloworld'
+var containerImage = concat('mcr.microsoft.com/azuredocs/containerapps-helloworld:', imageVersion)
 
 module logAnalyticsWorkspace 'br/public:avm/res/operational-insights/workspace:0.7.0' = {
   name: '${nameInfix}-log-analytics-workspace'

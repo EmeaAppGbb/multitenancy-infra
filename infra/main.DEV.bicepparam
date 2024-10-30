@@ -1,9 +1,10 @@
 using './main.bicep'
 
-param deployments = [
+param imageVersion = '001'
+
+param tenants = [
   {
     name: 'dev1'
     location: 'westeurope'
-    imageVersion: 'latest'
   }
 ]
