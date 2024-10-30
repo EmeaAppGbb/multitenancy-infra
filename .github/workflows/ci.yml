@@ -3,6 +3,9 @@ name: PRM
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - initial-pipeline
 
 permissions:
   id-token: write
