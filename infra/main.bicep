@@ -1,19 +1,21 @@
 targetScope = 'subscription'
-param deployments array
+param tenants array
+param imageVersion string
 
 resource resrouceGroup 'Microsoft.Resources/resourceGroups@2024-03-01' = [
-  for deployment in deployments: {
+  for deployment in tenants: {
     name: 'rg-${deployment.name}'
     location: deployment.location
   }
 ]
 
 module resources 'modules/resources.bicep' = [
-  for i in range(0, length(deployments)): {
-    name: 'deployment-${deployments[i].name}'
+  for i in range(0, length(tenants)): {
+    name: 'deployment-${tenants[i].name}'
     scope: resrouceGroup[i]
     params: {
-      deployment: deployments[i]
+      deployment: tenants[i]
+      imageVersion: imageVersion
     }
   }
 ]

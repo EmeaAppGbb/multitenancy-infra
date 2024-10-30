@@ -1,8 +1,9 @@
 param deployment object
+param imageVersion string
 
 var nameInfix = deployment.name
 var location = deployment.location
-var containerImage = 'mcr.microsoft.com/azuredocs/containerapps-helloworld'
+var containerImage = 'mcr.microsoft.com/azuredocs/containerapps-helloworld:${imageVersion}'
 
 module logAnalyticsWorkspace 'br/public:avm/res/operational-insights/workspace:0.7.0' = {
   name: '${nameInfix}-log-analytics-workspace'
@@ -30,7 +31,7 @@ module contianerApp 'br/public:avm/res/app/container-app:0.9.0' = {
     environmentResourceId: containerEnvironment.outputs.resourceId
     containers: [
       {
-        image: '${containerImage}:${deployment.imageVersion}'
+        image: containerImage
         name: 'app'
         resources: {
           cpu: '0.25'
