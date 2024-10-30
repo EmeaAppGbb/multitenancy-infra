@@ -14,7 +14,7 @@ resource resrouceGroup 'Microsoft.Resources/resourceGroups@2024-03-01' = [
 ]
 
 module resources 'modules/resources.bicep' = [
-  for i in range(0, length(tenants)): {
+  for i in range(0, length(tenantList)): {
     name: '${prefix}-${tenantList[i].name}'
     scope: resrouceGroup[i]
     params: {
