@@ -18,15 +18,18 @@ jobs:
     runs-on: ubuntu-latest
     env:
       TENANT_ID: 380adf45-465e-486c-92c1-a3a9e4f6c62d
-      SUBSCRIPTION_ID: 3e1e6407-7334-4898-bb27-b68e97a6b32e
+      SUBSCRIPTION_ID: 3e1e6407-7334-4898-bb27-b68e97a6b32e # ME-MngEnvMCAP402121-playground
+      # https://portal.azure.com/?feature.msaljs=true#view/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/~/Overview/appId/f2e9146b-f46e-4ddd-9367-4e4b9fa06fa9/isMSAApp~/false
+      # AppReg that has Owner permissions on the subscription
       CLIENT_ID: f2e9146b-f46e-4ddd-9367-4e4b9fa06fa9
       ENVIRONMENT: ${{ github.ref == 'refs/heads/main' && 'PROD' || 'DEV' }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Azure login
         uses: azure/login@v2
         with:
+          enable-AzPSSession: true
           creds: >
             {
             "clientId":"${{ env.CLIENT_ID }}",
@@ -34,6 +37,13 @@ jobs:
             "subscriptionId":"${{ env.SUBSCRIPTION_ID }}",
             "tenantId":"${{ env.TENANT_ID }}"
             }
+
+      - name: Delete tenants
+        uses: azure/powershell@v2
+        if: env.ENVIRONMENT == 'PROD'
+        with:
+          inlineScript: ./infra/Remove-Tenants.ps1
+          azPSVersion: latest
 
       - name: Deploy Bicep template
         uses: azure/arm-deploy@v2
