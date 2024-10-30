@@ -3,9 +3,10 @@ name: CI
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - initial-pipeline
+  # push:
+  #   branches:
+  #     - main
+  #     - develop
 
 permissions:
   id-token: write
