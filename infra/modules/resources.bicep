@@ -1,22 +1,22 @@
 param deployment object
 param imageVersion string
 
-var nameInfix = deployment.name
+var prefix = deployment.name
 var location = deployment.location
 var containerImage = 'mcr.microsoft.com/azuredocs/containerapps-helloworld:${imageVersion}'
 
 module logAnalyticsWorkspace 'br/public:avm/res/operational-insights/workspace:0.7.0' = {
-  name: '${nameInfix}-log-analytics-workspace'
+  name: '${prefix}-law'
   params: {
-    name: 'log-${nameInfix}-01'
+    name: '${prefix}-la'
     location: location
   }
 }
 
 module containerEnvironment 'br/public:avm/res/app/managed-environment:0.8.0' = {
-  name: '${nameInfix}-managed-environment'
+  name: '${prefix}-managed-environment'
   params: {
-    name: 'cae-${nameInfix}-01'
+    name: '${prefix}-cae'
     location: location
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspace.outputs.resourceId
     zoneRedundant: false
@@ -24,9 +24,9 @@ module containerEnvironment 'br/public:avm/res/app/managed-environment:0.8.0' = 
 }
 
 module contianerApp 'br/public:avm/res/app/container-app:0.9.0' = {
-  name: '${nameInfix}-container-app'
+  name: '${prefix}-container-app'
   params: {
-    name: 'ca-${nameInfix}-01'
+    name: '${prefix}-app'
     location: location
     environmentResourceId: containerEnvironment.outputs.resourceId
     containers: [
