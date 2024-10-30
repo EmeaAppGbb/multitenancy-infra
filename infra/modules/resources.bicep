@@ -13,6 +13,15 @@ module logAnalyticsWorkspace 'br/public:avm/res/operational-insights/workspace:0
   }
 }
 
+module configurationStore 'br/public:avm/res/app-configuration/configuration-store:0.5.1' = {
+  name: 'configurationStoreDeployment'
+  params: {
+    name: '${prefix}-acs'
+    enablePurgeProtection: false
+    location: location
+  }
+}
+
 module containerEnvironment 'br/public:avm/res/app/managed-environment:0.8.0' = {
   name: '${prefix}-managed-environment'
   params: {
