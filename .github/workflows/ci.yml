@@ -43,7 +43,7 @@ jobs:
 
       - name: Delete tenants
         uses: azure/powershell@v2
-        if: github.ref == 'refs/heads/main'
+        if: env.ENVIRONMENT == 'PROD'
         with:
           inlineScript: |
             . infra/Remove-Tenants.ps1
