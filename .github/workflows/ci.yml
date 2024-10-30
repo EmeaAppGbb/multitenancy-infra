@@ -3,6 +3,9 @@ name: CI
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - delete-rgs
   # push:
   #   branches:
   #     - main
@@ -18,15 +21,18 @@ jobs:
     runs-on: ubuntu-latest
     env:
       TENANT_ID: 380adf45-465e-486c-92c1-a3a9e4f6c62d
-      SUBSCRIPTION_ID: 3e1e6407-7334-4898-bb27-b68e97a6b32e
+      SUBSCRIPTION_ID: 3e1e6407-7334-4898-bb27-b68e97a6b32e # ME-MngEnvMCAP402121-playground
+      # https://portal.azure.com/?feature.msaljs=true#view/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/~/Overview/appId/f2e9146b-f46e-4ddd-9367-4e4b9fa06fa9/isMSAApp~/false
+      # AppReg that has Owner permissions on the subscription
       CLIENT_ID: f2e9146b-f46e-4ddd-9367-4e4b9fa06fa9
-      ENVIRONMENT: ${{ github.ref == 'refs/heads/main' && 'PROD' || 'DEV' }}
+      ENVIRONMENT: PROD # ${{ github.ref == 'refs/heads/main' && 'PROD' || 'DEV' }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Azure login
         uses: azure/login@v2
         with:
+          enable-AzPSSession: true
           creds: >
             {
             "clientId":"${{ env.CLIENT_ID }}",
@@ -34,6 +40,20 @@ jobs:
             "subscriptionId":"${{ env.SUBSCRIPTION_ID }}",
             "tenantId":"${{ env.TENANT_ID }}"
             }
+
+      - name: Delete tenants
+        uses: azure/powershell@v2
+        if: github.ref == 'refs/heads/main'
+        with:
+          inlineScript: |
+            . infra/Remove-Tenants.ps1
+          azPSVersion: latest
+
+      - name: Load tenants
+        run: |
+          echo 'TENANTS<<EOF' >> $GITHUB_ENV
+          cat infra/tenants.json >> $GITHUB_ENV
+          echo 'EOF' >> $GITHUB_ENV
 
       - name: Deploy Bicep template
         uses: azure/arm-deploy@v2
@@ -43,4 +63,4 @@ jobs:
           template: infra/main.bicep
           region: westeurope
           parameters: >
-            infra/main.${{ env.ENVIRONMENT }}.bicepparam
+            infra/main.${{ env.ENVIRONMENT }}.bicepparam tenants=${{ env.TENANTS }}

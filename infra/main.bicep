@@ -5,7 +5,7 @@ param imageVersion string
 
 resource resrouceGroup 'Microsoft.Resources/resourceGroups@2024-03-01' = [
   for deployment in tenants: {
-    name: 'rg-${deployment.name}'
+    name: 'rg-tenant-${deployment.name}'
     location: deployment.location
   }
 ]
