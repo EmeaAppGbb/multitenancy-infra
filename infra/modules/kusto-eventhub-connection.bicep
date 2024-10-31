@@ -14,16 +14,16 @@ resource database 'Microsoft.Kusto/clusters/databases@2023-08-15' existing = {
   parent: cluster
   name: databaseName
 }
-
-resource dataConnection 'Microsoft.Kusto/clusters/databases/eventhubconnections@2018-09-07-preview' = {
+resource dataConnection 'Microsoft.Kusto/clusters/databases/dataConnections@2023-08-15' = {
   name: name
   location: location
   parent: database
+  kind: 'EventHub'
   properties: {
     consumerGroup: '$Default'
     eventHubResourceId: resourceId('Microsoft.EventHub/namespaces/eventhubs', eventHubNamespace, eventHub)
-    dataFormat: 'JSON'
     tableName: tableName
+    dataFormat: 'JSON'
   }
 }
 

@@ -3,14 +3,12 @@
         "name": "demo2cust1",
         "location": "westeurope",
         "includeApp": true,
-        "includeML": true,
-        "includeData": true
+        "includeDataAndML": true
     },
     {
         "name": "demo2cust2",
         "location": "northeurope",
         "includeApp": true,
-        "includeML": true,
-        "includeData": true
+        "includeDataAndML": true
     }
 ]

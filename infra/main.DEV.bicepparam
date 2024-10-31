@@ -8,7 +8,6 @@ param tenants = [
     name: 'cnsdev'
     location: 'westeurope'
     includeApp: true
-    includeML: true
-    includeData: true
+    includeDataAndML: true
   }
 ]

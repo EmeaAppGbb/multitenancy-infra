@@ -5,8 +5,9 @@ var prefix = deployment.name
 var location = deployment.location
 var containerImage = 'mcr.microsoft.com/azuredocs/containerapps-helloworld:${imageVersion}'
 
-var apimResourceGroup = 'cnsshared'
+var sharedResourceGroup = 'cnsshared'
 var apimName = 'cnsshared-apim'
+var crName = 'cnssharedcr'
 
 // Resource type abbreviations: https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/ready/azure-best-practices/resource-abbreviations
 
@@ -15,7 +16,12 @@ var apimName = 'cnsshared-apim'
 //
 resource apim 'Microsoft.ApiManagement/service@2024-05-01' existing = {
   name: apimName
-  scope: resourceGroup(apimResourceGroup)
+  scope: resourceGroup(sharedResourceGroup)
+}
+
+resource containerRegistry 'Microsoft.ContainerRegistry/registries@2023-07-01' existing = {
+  name: crName
+  scope: resourceGroup(sharedResourceGroup)
 }
 
 //
@@ -68,6 +74,9 @@ module containerEnvironment 'br/public:avm/res/app/managed-environment:0.8.0' = 
     name: '${prefix}-cae'
     location: location
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspace.outputs.resourceId
+    managedIdentities: {
+      systemAssigned: true
+    }
     zoneRedundant: false
   }
 }
@@ -91,13 +100,24 @@ module contianerApp 'br/public:avm/res/app/container-app:0.9.0' = if (deployment
   }
 }
 
-//
-// ML
-// 
-module mlStorageAccount 'br/public:avm/res/storage/storage-account:0.9.1' = {
-  name: '${prefix}-ml-storage-account'
+module roleAssignment1 'br/public:avm/ptn/authorization/resource-role-assignment:0.1.1' = if (deployment.includeApp) {
+  name: '${prefix}-role-assignment-1'
+  scope: resourceGroup(sharedResourceGroup)
   params: {
-    name: '${prefix}stml'
+    resourceId: containerRegistry.id
+    principalId: containerEnvironment.outputs.systemAssignedMIPrincipalId
+    roleDefinitionId: '7f951dda-4ed3-4680-a7ca-43fe172d538d'
+    roleName: 'AcrPull'
+  }
+}
+
+//
+// Data & ML
+// 
+module storageAccount 'br/public:avm/res/storage/storage-account:0.9.1' = if (deployment.includeDataAndML) {
+  name: '${prefix}-storage-account'
+  params: {
+    name: '${prefix}st'
     location: location
     publicNetworkAccess: 'Enabled'
     isLocalUserEnabled: true
@@ -108,18 +128,7 @@ module mlStorageAccount 'br/public:avm/res/storage/storage-account:0.9.1' = {
   }
 }
 
-module containerRegistry 'br/public:avm/res/container-registry/registry:0.5.1' = {
-  name: '${prefix}-container-registry'
-  params: {
-    #disable-next-line BCP334
-    name: '${prefix}crml'
-    location: location
-    publicNetworkAccess: 'Enabled'
-    acrAdminUserEnabled: true
-  }
-}
-
-module mlWorkspace 'br/public:avm/res/machine-learning-services/workspace:0.8.2' = if (deployment.includeML) {
+module mlWorkspace 'br/public:avm/res/machine-learning-services/workspace:0.8.2' = if (deployment.includeDataAndML) {
   name: '${prefix}-ml-workspace'
   params: {
     name: '${prefix}-mlw'
@@ -127,16 +136,27 @@ module mlWorkspace 'br/public:avm/res/machine-learning-services/workspace:0.8.2'
     sku: 'Basic'
     associatedKeyVaultResourceId: keyVault.outputs.resourceId
     associatedApplicationInsightsResourceId: applicationInsights.outputs.resourceId
-    associatedContainerRegistryResourceId: containerRegistry.outputs.resourceId
-    associatedStorageAccountResourceId: mlStorageAccount.outputs.resourceId
+    associatedContainerRegistryResourceId: containerRegistry.id
+    associatedStorageAccountResourceId: storageAccount.outputs.resourceId
     publicNetworkAccess: 'Enabled'
+    managedIdentities: {
+      systemAssigned: true
+    }
   }
 }
 
-//
-// Data
-//
-module eventHub 'br/public:avm/res/event-hub/namespace:0.7.1' = if (deployment.includeData) {
+module roleAssignment2 'br/public:avm/ptn/authorization/resource-role-assignment:0.1.1' = if (deployment.includeDataAndML) {
+  name: '${prefix}-role-assignment-2'
+  scope: resourceGroup(sharedResourceGroup)
+  params: {
+    resourceId: containerRegistry.id
+    principalId: mlWorkspace.outputs.systemAssignedMIPrincipalId
+    roleDefinitionId: '7f951dda-4ed3-4680-a7ca-43fe172d538d'
+    roleName: 'AcrPull'
+  }
+}
+
+module eventHub 'br/public:avm/res/event-hub/namespace:0.7.1' = if (deployment.includeDataAndML) {
   name: '${prefix}-event-hub'
   params: {
     name: '${prefix}-evhns'
@@ -152,7 +172,7 @@ module eventHub 'br/public:avm/res/event-hub/namespace:0.7.1' = if (deployment.i
   }
 }
 
-module kusto 'br/public:avm/res/kusto/cluster:0.3.2' = if (deployment.includeData) {
+module kusto 'br/public:avm/res/kusto/cluster:0.3.2' = if (deployment.includeDataAndML) {
   name: '${prefix}-kusto'
   params: {
     name: '${prefix}-dec'
@@ -164,11 +184,18 @@ module kusto 'br/public:avm/res/kusto/cluster:0.3.2' = if (deployment.includeDat
     enablePurge: false
     enableZoneRedundant: false
     enableRestrictOutboundNetworkAccess: false
+    principalAssignments: [
+      {
+        principalId: mlWorkspace.outputs.systemAssignedMIPrincipalId
+        principalType: 'App'
+        role: 'AllDatabasesAdmin'
+      }
+    ]
   }
 }
 
-module database 'modules/kusto-database.bicep' = if (deployment.includeData) {
-  name: '${prefix}-kusto-database'
+module logDatabase 'modules/kusto-database.bicep' = if (deployment.includeDataAndML) {
+  name: '${prefix}-kusto-log-database'
   params: {
     name: 'LogDatabase'
     location: location
@@ -176,30 +203,54 @@ module database 'modules/kusto-database.bicep' = if (deployment.includeData) {
   }
 }
 
-module tables 'modules/kusto-script.bicep' = if (deployment.includeData) {
-  name: '${prefix}-kusto-tables'
+module demoDatabase 'modules/kusto-database.bicep' = if (deployment.includeDataAndML) {
+  name: '${prefix}-kusto-demo-database'
+  params: {
+    name: 'DemoDatabase'
+    location: location
+    clusterName: kusto.outputs.name
+  }
+}
+
+module logTables 'modules/kusto-script.bicep' = if (deployment.includeDataAndML) {
+  name: '${prefix}-kusto-log-tables'
   params: {
     clusterName: kusto.outputs.name
-    databaseName: database.outputs.name
+    databaseName: logDatabase.outputs.name
     name: 'tables'
     scriptContent: '''
         .create table SucceededIngestion (records:dynamic)
+        .create table FailedIngestion (records:dynamic)
+        .create table IngestionBatching (records:dynamic)
       '''
   }
 }
 
-module eventGridConnection1 'modules/kusto-eventhub-connection.bicep' = if (deployment.includeData) {
+module demoTables 'modules/kusto-script.bicep' = if (deployment.includeDataAndML) {
+  name: '${prefix}-kusto-demo-tables'
+  params: {
+    clusterName: kusto.outputs.name
+    databaseName: demoDatabase.outputs.name
+    name: 'tables'
+    scriptContent: '''
+        .create table CustomerData (records:dynamic)
+        .create table Predictions (records:dynamic)
+      '''
+  }
+}
+
+module eventGridConnection1 'modules/kusto-eventhub-connection.bicep' = if (deployment.includeDataAndML) {
   name: '${prefix}-event-grid-connection1'
   params: {
     name: 'SucceededIngestion'
     location: location
     clusterName: kusto.outputs.name
-    databaseName: database.outputs.name
+    databaseName: logDatabase.outputs.name
     tableName: 'SucceededIngestion'
     eventHubNamespace: eventHub.outputs.name
     eventHub: 'SucceededIngestion'
   }
   dependsOn: [
-    tables
+    logTables
   ]
 }
