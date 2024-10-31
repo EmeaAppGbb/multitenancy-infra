@@ -18,7 +18,7 @@ permissions:
 
 jobs:
   deploy-environments:
-    name: Deploy environments
+    name: Build reconciliation plan
     runs-on: ubuntu-latest
     env:
       TENANT_ID: 380adf45-465e-486c-92c1-a3a9e4f6c62d
@@ -27,6 +27,8 @@ jobs:
       # AppReg that has Owner permissions on the subscription
       CLIENT_ID: f2e9146b-f46e-4ddd-9367-4e4b9fa06fa9
       ENVIRONMENT: ${{ github.ref == 'refs/heads/prod' && 'PROD' || 'DEV' }}
+    permissions:
+      pull-requests: write
     steps:
       - uses: actions/checkout@v4
 
@@ -43,33 +45,21 @@ jobs:
             "tenantId":"${{ env.TENANT_ID }}"
             }
 
-      - name: Reconciliate Bicep template
-        id: reconciliate
-        uses: azure/arm-deploy@v2
-        with:
-          scope: subscription
-          subscriptionId: ${{ env.SUBSCRIPTION_ID }}
-          template: infra/main.bicep
-          region: westeurope
-          parameters: >
-            infra/main.${{ env.ENVIRONMENT }}.bicepparam
-          additionalArguments: "--what-if"
+      - name: Make deployment plan
+        id: deploymentplan
+        run: |
+          echo "az deployment sub create --location westeurope --template-file infra/main.bicep --parameters infra/main.${{ env.ENVIRONMENT }}.bicepparam --what-if\n" >> $GITHUB_OUTPUT
+            
+      - run: echo ${{ steps.deploymentplan.outputs.stdout }}
 
       - uses: actions/github-script@v7
         if: github.event_name == 'pull_request'
         env:
-          PLAN: "biceps\n${{ steps.reconciliate.outputs.stdout }}"
+          PLAN: "biceps\n${{ steps.deploymentplan.outputs.stdout }}"
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const output = `#### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
-            #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
-            #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
-            <details><summary>Validation Output</summary>
-
-            </details>
-
-            #### Biceps Reconciliation Plan 📖\`${{ steps.reconciliate.outcome }}\`
+            const output = `#### Biceps Reconciliation Plan 📖\`${{ steps.reconciliate.outcome }}\`
 
             <details><summary>Show Plan</summary>
 
