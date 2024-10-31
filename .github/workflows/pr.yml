@@ -18,7 +18,7 @@ permissions:
 
 jobs:
   deploy-environments:
-    name: Deploy environments
+    name: Build reconciliation plan
     runs-on: ubuntu-latest
     env:
       TENANT_ID: 380adf45-465e-486c-92c1-a3a9e4f6c62d
@@ -27,6 +27,8 @@ jobs:
       # AppReg that has Owner permissions on the subscription
       CLIENT_ID: f2e9146b-f46e-4ddd-9367-4e4b9fa06fa9
       ENVIRONMENT: ${{ github.ref == 'refs/heads/prod' && 'PROD' || 'DEV' }}
+    permissions:
+      pull-requests: write
     steps:
       - uses: actions/checkout@v4
 
