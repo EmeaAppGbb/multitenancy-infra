@@ -1,10 +1,16 @@
 [
     {
-        "name": "customer1",
-        "location": "westeurope"
+        "name": "demo2cust1",
+        "location": "westeurope",
+        "includeApp": true,
+        "includeML": true,
+        "includeData": true
     },
     {
-        "name": "customer2",
-        "location": "northeurope"
+        "name": "demo2cust2",
+        "location": "northeurope",
+        "includeApp": true,
+        "includeML": true,
+        "includeData": true
     }
 ]

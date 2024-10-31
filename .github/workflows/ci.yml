@@ -30,6 +30,7 @@ jobs:
         uses: azure/login@v2
         with:
           enable-AzPSSession: true
+          # AppReg client secret: https://github.com/EmeaAppGbb/multitenancy-infra/settings/secrets/actions
           creds: >
             {
             "clientId":"${{ env.CLIENT_ID }}",
