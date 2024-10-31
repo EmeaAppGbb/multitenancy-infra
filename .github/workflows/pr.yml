@@ -45,21 +45,26 @@ jobs:
             "tenantId":"${{ env.TENANT_ID }}"
             }
 
-      - name: Make deployment plan
+      - name: Make deployment plan - no apply
         id: deploymentplan
         run: |
-          echo "az deployment sub create --location westeurope --template-file infra/main.bicep --parameters infra/main.${{ env.ENVIRONMENT }}.bicepparam --what-if\n" >> $GITHUB_OUTPUT
-            
-      - run: echo ${{ steps.deploymentplan.outputs.stdout }}
+            echo "PLAN<<EOF" >> $GITHUB_ENV
+            echo "az deployment sub create --location westeurope --template-file infra/main.bicep --parameters infra/main.${{ env.ENVIRONMENT }}.bicepparam --what-if" >> $GITHUB_ENV
+            echo "EOF" >> $GITHUB_ENV
+           
+      - run: |
+          echo "${{ steps.test.deploymentplan.outputs.plan }}"
 
       - uses: actions/github-script@v7
         if: github.event_name == 'pull_request'
         env:
-          PLAN: "biceps\n${{ steps.deploymentplan.outputs.stdout }}"
+          PLAN: "biceps\n${{ steps.deploymentplan.outputs.plan }}"
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const output = `#### Biceps Reconciliation Plan 📖\`${{ steps.reconciliate.outcome }}\`
+            ENCODED_OUTPUT="${{ steps.test.deploymentplan.encodedoutput }}"
+            VAR=$(echo "$ENCODED_OUTPUT" | base64 --decode)
+            const output = `#### Biceps Reconciliation Plan 📖\`$VAR\`
 
             <details><summary>Show Plan</summary>
 
