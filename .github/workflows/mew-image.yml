@@ -1,0 +1,44 @@
+name: Application Image Update
+
+on:
+  repository_dispatch:
+    types: [new-app-image]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          repository: ${{ github.repository }}
+      - name: Create a new branch
+        run: |
+          git checkout -b bot/update-app-$GITHUB_RUN_NUMBER
+      - name: Update resource
+        env:
+          IMAGE: ${{ github.event.client_payload.image }}
+        run: |
+          sed -i 's|imageVersion: .*:.*|imageVersion: '"$IMAGE"'|' ./infra/main.DEV.bicepparam
+          sed -i 's|imageVersion: .*:.*|imageVersion: '"$IMAGE"'|' ./infra/main.PROD.bicepparam
+      - name: Commit and push changes
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add .
+          git commit -m "Update image in containerapp.yaml"
+          git push origin bot/update-app-$GITHUB_RUN_NUMBER
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Generate a token
+        id: generate-token
+        uses: actions/create-github-app-token@v1
+        with:
+            app-id: ${{ secrets.APP_ID }}
+            private-key: ${{ secrets.APP_PRIVATE_KEY }}
+            owner: ${{ github.repository_owner }}
+      - name: Create a PR
+        run: |
+          gh pr create --title "Update hello-world-app" --body "Update app image" --head bot/update-app-$GITHUB_RUN_NUMBER --base main
+        env:
+          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
