@@ -49,20 +49,17 @@ jobs:
         id: deploymentplan
         run: |
           az deployment sub create --location westeurope --template-file infra/main.bicep --parameters infra/main.${{ env.ENVIRONMENT }}.bicepparam --what-if >> plan.txt
-          PLAN=$(cat plan.txt)
-          echo "plan=$PLAN" >> $GITHUB_ENV
 
       - run: |
-          echo "${{ env.plan }}"
+          echo "$(cat plan.txt)"
 
       - uses: actions/github-script@v7
         if: github.event_name == 'pull_request'
-        env:
-          PLAN: "${{ env.plan }}"
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const plan = process.env.PLAN;
+            const fs = require('fs');
+            const plan = fs.readFileSync('plan.txt', 'utf8');
             const output = `#### Biceps Reconciliation Plan 📖\
 
             <details><summary>Show Plan</summary>
