@@ -45,24 +45,13 @@ jobs:
             "tenantId":"${{ env.TENANT_ID }}"
             }
 
-      - name: Reconciliate Bicep template
-        id: reconciliate
-        uses: azure/arm-deploy@v2
-        with:
-          scope: subscription
-          subscriptionId: ${{ env.SUBSCRIPTION_ID }}
-          template: infra/main.bicep
-          region: westeurope
-          parameters: >
-            infra/main.${{ env.ENVIRONMENT }}.bicepparam
-          additionalArguments: "--what-if"
-
       - name: Make deployment plan
         uses: mathiasvr/command-output@v1
         id: deploymentplan
         with:
           run: |
-            az deployment sub create --location westeurope --template-file .\main.bicep --parameters .\main.DEV.bicepparam --what-if  
+            cd infra
+            az deployment sub create --location westeurope --template-file infra/main.bicep --parameters infra/main.${{ env.ENVIRONMENT }}.bicepparam --what-if  
 
       - run: echo ${{ steps.deploymentplan.outputs.stdout }}
 
