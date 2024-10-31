@@ -24,7 +24,7 @@ jobs:
           sed -i "s|param imageVersion = '.*'|param imageVersion = '$IMAGE'|" ./infra/main.PROD.bicepparam
           echo "---DEV---"
           echo $(cat ./infra/main.DEV.bicepparam)
-          echo "---PROD---""
+          echo "---PROD---"
           echo $(cat ./infra/main.PROD.bicepparam)
       - name: Commit and push changes
         run: |
