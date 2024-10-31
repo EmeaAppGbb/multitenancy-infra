@@ -9,5 +9,11 @@ param tenants = [
     location: 'westeurope'
     includeApp: true
     includeDataAndML: true
+  },
+  {
+    name: 'customer2'
+    location: 'westeurope'
+    includeApp: true
+    includeDataAndML: true
   }
 ]
