@@ -10,6 +10,7 @@ var sharedResourceGroup = 'cnsshared'
 var crName = 'cnssharedcr'
 
 var landingContainerName = 'landing'
+var demoGroupId = '8691cafd-ff9e-4817-98b4-2ef749b2b041' // DemoDataApp-GitOps
 
 // Resource type abbreviations: https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/ready/azure-best-practices/resource-abbreviations
 
@@ -261,28 +262,6 @@ module eventGridTopic 'br/public:avm/res/event-grid/system-topic:0.4.0' = if (de
     }
     source: storageAccount.outputs.resourceId
     topicType: 'Microsoft.Storage.StorageAccounts'
-    // eventSubscriptions: [
-    //   {
-    //     name: 'Subection1'
-    //     destination: {
-    //       endpointType: 'EventHub'
-    //       properties: {
-    //         resourceId: eventHubNamespace.outputs.eventHubResourceIds[0]
-    //       }
-    //     }
-    //     eventDeliverySchema: 'EventGridSchema'
-    //     subjectBeginsWith: '/blobServices/default/containers/${landingContainerName}'
-
-    //     includedEventTypes: [
-    //       'Microsoft.Storage.BlobCreated'
-    //     ]
-    //     enableAdvancedFilteringOnArrays: true
-    //     retryPolicy: {
-    //       eventTimeToLive: 1440
-    //       maxDeliveryAttempts: 30
-    //     }
-    //   }
-    // ]
   }
 }
 
@@ -294,6 +273,9 @@ module eventSubscription 'modules/event-subscription.bicep' = if (deployment.inc
     containerName: landingContainerName
     eventHubResourceId: eventHubNamespace.outputs.eventHubResourceIds[0]
   }
+  dependsOn: [
+    roleAssignment5
+  ]
 }
 
 module kusto 'br/public:avm/res/kusto/cluster:0.3.2' = if (deployment.includeDataAndML) {
@@ -317,6 +299,17 @@ module kusto 'br/public:avm/res/kusto/cluster:0.3.2' = if (deployment.includeDat
         principalId: mlWorkspace.outputs.systemAssignedMIPrincipalId
         principalType: 'App'
         role: 'AllDatabasesAdmin'
+      }
+      {
+        principalId: demoGroupId
+        principalType: 'Group'
+        role: 'AllDatabasesAdmin'
+      }
+    ]
+    diagnosticSettings: [
+      {
+        name: 'LogAnalytics'
+        workspaceResourceId: logAnalyticsWorkspace.outputs.resourceId
       }
     ]
   }
