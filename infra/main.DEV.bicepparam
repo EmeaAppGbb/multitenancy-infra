@@ -1,6 +1,6 @@
 using './main.bicep'
 
-param imageVersion = 'mcr.microsoft.com/dotnet/aspnet:8.0'
+param imageVersion = 'cnssharedcr.azurecr.io/helloworld:sha-0d4f876'
 param environmentName = 'dev'
 
 param tenants = [
