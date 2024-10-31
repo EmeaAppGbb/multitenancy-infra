@@ -47,9 +47,8 @@ jobs:
 
       - name: Make deployment plan
         id: deploymentplan
-        with:
-          run: |
-            echo "az deployment sub create --location westeurope --template-file infra/main.bicep --parameters infra/main.${{ env.ENVIRONMENT }}.bicepparam --what-if\n" >> $GITHUB_OUTPUT
+        run: |
+          echo "az deployment sub create --location westeurope --template-file infra/main.bicep --parameters infra/main.${{ env.ENVIRONMENT }}.bicepparam --what-if\n" >> $GITHUB_OUTPUT
             
       - run: echo ${{ steps.deploymentplan.outputs.stdout }}
 
