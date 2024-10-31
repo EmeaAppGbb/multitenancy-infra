@@ -4,7 +4,7 @@ $tenants = Get-Content $PSScriptRoot/tenants.json | ConvertFrom-Json
 
 foreach ($rg in $existingGroups) {
     $tenant = $tenants | Where-Object { $_.name -eq $rg.ResourceGroupName.TrimStart($rgPrefix) }
-    if ($tenant -eq $null) {
+    if ($null -eq $tenant) {
         # Remove-AzResourceGroup -Name $rg.ResourceGroupName -Force
         Write-Host "Deleting resource group $($rg.ResourceGroupName)"
     }

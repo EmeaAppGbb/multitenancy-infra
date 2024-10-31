@@ -2,7 +2,7 @@ param name string
 param location string
 param eventGridResourceId string
 param storageAccocuntResourceId string
-param consumerGroup string
+param eventHubResourceId string
 param clusterName string
 param databaseName string
 param tableName string
@@ -24,8 +24,12 @@ resource dataConnection 'Microsoft.Kusto/clusters/databases/dataConnections@2023
   properties: {
     eventGridResourceId: eventGridResourceId
     storageAccountResourceId: storageAccocuntResourceId
-    consumerGroup: consumerGroup
+    consumerGroup: '$Default'
     tableName: tableName
+    blobStorageEventType: 'Microsoft.Storage.BlobCreated'
+    ignoreFirstRecord: true
+    managedIdentityResourceId: cluster.id
+    eventHubResourceId: eventHubResourceId
     dataFormat: 'CSV'
   }
 }

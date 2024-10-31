@@ -1,0 +1,3 @@
+.create table FailedIngestion (['records']: dynamic)
+.create table IngestionBatching (['records']: dynamic)
+.create table SucceededIngestion (['records']: dynamic)
