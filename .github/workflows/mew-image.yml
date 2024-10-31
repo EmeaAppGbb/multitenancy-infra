@@ -14,7 +14,7 @@ jobs:
           repository: ${{ github.repository }}
       - name: Show environment variables
         run: |
-          echo "GH_APP_ID: ${{ env.GH_APP_ID }}"
+          echo "GH_APP_ID: ${{ vars.GH_APP_ID }}"
           echo "GH_APP_PRIVATE_KEY: ${{ secrets.GH_APP_PRIVATE_KEY }}"
           echo "repository_owner: ${{ github.repository_owner }}"
       - name: Create a new branch
