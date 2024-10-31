@@ -12,6 +12,11 @@ jobs:
         with:
           ref: dev
           repository: ${{ github.repository }}
+      - name: Show environment variables
+        run: |
+          echo "GH_APP_ID: ${{ env.GH_APP_ID }}"
+          echo "GH_APP_PRIVATE_KEY: ${{ secrets.GH_APP_PRIVATE_KEY }}"
+          echo "repository_owner: ${{ github.repository_owner }}"
       - name: Create a new branch
         run: |
           git checkout -b bot/update-app-$GITHUB_RUN_NUMBER
@@ -35,6 +40,11 @@ jobs:
           git push origin bot/update-app-$GITHUB_RUN_NUMBER
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Show environment variables
+        run: |
+          echo "GH_APP_ID: ${{ env.GH_APP_ID }}"
+          echo "GH_APP_PRIVATE_KEY: ${{ secrets.GH_APP_PRIVATE_KEY }}"
+          echo "repository_owner: ${{ github.repository_owner }}"
       - name: Generate a token
         id: generate-token
         uses: actions/create-github-app-token@v1
