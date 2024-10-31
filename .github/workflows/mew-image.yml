@@ -10,7 +10,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: main
+          ref: dev
           repository: ${{ github.repository }}
       - name: Create a new branch
         run: |
@@ -19,8 +19,11 @@ jobs:
         env:
           IMAGE: ${{ github.event.client_payload.image }}
         run: |
-          sed -i 's|imageVersion: .*:.*|imageVersion: '"$IMAGE"'|' ./infra/main.DEV.bicepparam
-          sed -i 's|imageVersion: .*:.*|imageVersion: '"$IMAGE"'|' ./infra/main.PROD.bicepparam
+          echo "Updating image to $IMAGE"
+          sed -i "s|param imageVersion = '.*'|param imageVersion = '$IMAGE'|" ./infra/main.DEV.bicepparam
+          sed -i "s|param imageVersion = '.*'|param imageVersion = '$IMAGE'|" ./infra/main.PROD.bicepparam
+          echo "---"
+          echo $(cat ./infra/main.DEV.bicepparam)
       - name: Commit and push changes
         run: |
           git config --global user.name 'github-actions[bot]'
