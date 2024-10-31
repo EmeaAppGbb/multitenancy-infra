@@ -49,6 +49,6 @@ jobs:
             owner: ${{ github.repository_owner }}
       - name: Create a PR
         run: |
-          gh pr create --title "Update hello-world-app" --body "Update app image" --head bot/update-app-$GITHUB_RUN_NUMBER --base main
+          gh pr create --title "Update hello-world-app" --body "Update app image" --head bot/update-app-$GITHUB_RUN_NUMBER --base dev
         env:
           GH_TOKEN: ${{ steps.generate-token.outputs.token }}
