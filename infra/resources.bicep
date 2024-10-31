@@ -6,23 +6,16 @@ var location = deployment.location
 var containerImage = 'mcr.microsoft.com/azuredocs/containerapps-helloworld:${imageVersion}'
 
 var sharedResourceGroup = 'cnsshared'
-// var apimName = 'cnsshared-apim'
 var crName = 'cnssharedcr'
-
 var landingContainerName = 'landing'
 var demoGroupId = '8691cafd-ff9e-4817-98b4-2ef749b2b041' // DemoDataApp-GitOps
+var apimClientId = 'cd4f6b8d-7d8e-4742-8ae7-3d38038c186b'
 
 // Resource type abbreviations: https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/ready/azure-best-practices/resource-abbreviations
 
 //
 // Shared
 //
-// Todo removed until used, to avoid Biceps failing in the pipeline
-// resource apim 'Microsoft.ApiManagement/service@2024-05-01' existing = {
-//   name: apimName
-//   scope: resourceGroup(sharedResourceGroup)
-// }
-
 resource containerRegistry 'Microsoft.ContainerRegistry/registries@2023-07-01' existing = {
   name: crName
   scope: resourceGroup(sharedResourceGroup)
@@ -304,6 +297,11 @@ module kusto 'br/public:avm/res/kusto/cluster:0.3.2' = if (deployment.includeDat
         principalId: demoGroupId
         principalType: 'Group'
         role: 'AllDatabasesAdmin'
+      }
+      {
+        principalId: apimClientId
+        principalType: 'App'
+        role: 'AllDatabasesViewer'
       }
     ]
     diagnosticSettings: [
