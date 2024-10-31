@@ -48,22 +48,21 @@ jobs:
       - name: Make deployment plan
         id: deploymentplan
         run: |
-            echo "PLAN<<EOF" >> $GITHUB_OUTPUT
-            echo $(az deployment sub create --location westeurope --template-file infra/main.bicep --parameters infra/main.${{ env.ENVIRONMENT }}.bicepparam --what-if) >> $GITHUB_OUTPUT
-            echo "EOF" >> $GITHUB_OUTPUT
-            az deployment sub create --location westeurope --template-file infra/main.bicep --parameters infra/main.${{ env.ENVIRONMENT }}.bicepparam --what-if >> plan.txt
-           
+          az deployment sub create --location westeurope --template-file infra/main.bicep --parameters infra/main.${{ env.ENVIRONMENT }}.bicepparam --what-if >> plan.txt
+          PLAN=$(cat plan.txt)
+          echo "plan=$PLAN" >> $GITHUB_ENV
+
       - run: |
-          echo $(cat plan.txt)
+          echo "${{ env.plan }}"
 
       - uses: actions/github-script@v7
         if: github.event_name == 'pull_request'
         env:
-          PLAN: "biceps\n${{ steps.deploymentplan.outputs.plan }}"
+          PLAN: "${{ env.plan }}"
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            plan=$(cat plan.txt)
+            const plan = process.env.PLAN;
             const output = `#### Biceps Reconciliation Plan 📖\
 
             <details><summary>Show Plan</summary>
