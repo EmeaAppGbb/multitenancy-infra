@@ -3,10 +3,10 @@ name: Reconciliation
 
 on:
   workflow_dispatch:
-  # push:
-  #   branches:
-  #     - dev
-  #     - prod
+  push:
+    branches:
+      - dev
+      - prod
 
 permissions:
   id-token: write
