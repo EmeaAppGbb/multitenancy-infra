@@ -45,7 +45,7 @@ jobs:
             "tenantId":"${{ env.TENANT_ID }}"
             }
 
-      - name: Make deployment plan - whatif
+      - name: Make deployment plan
         id: deploymentplan
         run: |
             echo "PLAN<<EOF" >> $GITHUB_OUTPUT
@@ -54,9 +54,7 @@ jobs:
             az deployment sub create --location westeurope --template-file infra/main.bicep --parameters infra/main.${{ env.ENVIRONMENT }}.bicepparam --what-if >> plan.txt
            
       - run: |
-          echo "${{ steps.deploymentplan.outcomes }}"
-          echo ------------------------
-          cat plan.txt
+          echo $(cat plan.txt)
 
       - uses: actions/github-script@v7
         if: github.event_name == 'pull_request'
@@ -65,12 +63,13 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
+            plan=$(cat plan.txt)
             const output = `#### Biceps Reconciliation Plan 📖\
 
             <details><summary>Show Plan</summary>
 
             \`\`\`\n
-            ${process.env.PLAN}
+            ${plan}
             \`\`\`
 
             </details>
