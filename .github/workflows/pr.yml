@@ -50,7 +50,6 @@ jobs:
         id: deploymentplan
         with:
           run: |
-            cd infra
             az deployment sub create --location westeurope --template-file infra/main.bicep --parameters infra/main.${{ env.ENVIRONMENT }}.bicepparam --what-if  
 
       - run: echo ${{ steps.deploymentplan.outputs.stdout }}
