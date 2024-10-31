@@ -49,7 +49,7 @@ jobs:
         id: deploymentplan
         run: |
             echo "PLAN<<EOF" >> $GITHUB_OUTPUT
-            echo "az deployment sub create --location westeurope --template-file infra/main.bicep --parameters infra/main.${{ env.ENVIRONMENT }}.bicepparam --what-if" >> $GITHUB_OUTPUT
+            echo $(az deployment sub create --location westeurope --template-file infra/main.bicep --parameters infra/main.${{ env.ENVIRONMENT }}.bicepparam --what-if) >> $GITHUB_OUTPUT
             echo "EOF" >> $GITHUB_OUTPUT
            
       - run: |
