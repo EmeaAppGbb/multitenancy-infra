@@ -48,11 +48,9 @@ jobs:
       - name: Make deployment plan - no apply
         id: deploymentplan
         run: |
-          {
-            echo 'PLAN<<EOF'
-            az deployment sub create --location westeurope --template-file infra/main.bicep --parameters infra/main.${{ env.ENVIRONMENT }}.bicepparam --what-if
-            echo EOF
-          } >> "$GITHUB_ENV"
+            echo "PLAN<<EOF" >> $GITHUB_ENV
+            echo "az deployment sub create --location westeurope --template-file infra/main.bicep --parameters infra/main.${{ env.ENVIRONMENT }}.bicepparam --what-if" >> $GITHUB_ENV
+            echo "EOF" >> $GITHUB_ENV
            
       - run: |
           echo "${{ steps.test.deploymentplan.outputs.plan }}"
