@@ -51,9 +51,12 @@ jobs:
             echo "PLAN<<EOF" >> $GITHUB_OUTPUT
             echo $(az deployment sub create --location westeurope --template-file infra/main.bicep --parameters infra/main.${{ env.ENVIRONMENT }}.bicepparam --what-if) >> $GITHUB_OUTPUT
             echo "EOF" >> $GITHUB_OUTPUT
+            az deployment sub create --location westeurope --template-file infra/main.bicep --parameters infra/main.${{ env.ENVIRONMENT }}.bicepparam --what-if >> plan.txt
            
       - run: |
-          echo "${{ steps.deploymentplan.outputs.plan }}"
+          echo "${{ steps.deploymentplan.outcomes }}"
+          echo ------------------------
+          cat plan.txt
 
       - uses: actions/github-script@v7
         if: github.event_name == 'pull_request'
