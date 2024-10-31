@@ -1,5 +1,5 @@
 ---
-name: Reconciliation
+name: Pull Request Pipeline
 
 on:
   workflow_dispatch:
@@ -39,13 +39,6 @@ jobs:
             "tenantId":"${{ env.TENANT_ID }}"
             }
 
-      - name: Delete tenants
-        uses: azure/powershell@v2
-        if: env.ENVIRONMENT == 'PROD'
-        with:
-          inlineScript: ./infra/Remove-Tenants.ps1
-          azPSVersion: latest
-
       - name: Deploy Bicep template
         uses: azure/arm-deploy@v2
         with:
@@ -55,3 +48,4 @@ jobs:
           region: westeurope
           parameters: >
             infra/main.${{ env.ENVIRONMENT }}.bicepparam
+          additionalArguments: "--what-if"
