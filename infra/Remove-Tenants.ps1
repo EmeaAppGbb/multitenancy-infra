@@ -1,4 +1,4 @@
-$rgPrefix = "cns-tenant-"
+$rgPrefix = "cns-prod-tenant-"
 $existingGroups = Get-AzResourceGroup | Where-Object { $_.ResourceGroupName -like "$rgPrefix*" }
 $tenants = Get-Content $PSScriptRoot/tenants.json | ConvertFrom-Json
 
