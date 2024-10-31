@@ -1,7 +1,7 @@
 using './main.bicep'
 
 param imageVersion = 'latest'
-param isDev = true
+param environmentName = 'dev'
 
 param tenants = [
   {
