@@ -7,6 +7,10 @@ on:
   #   branches:
   #     - dev
   #     - prod
+  pull_request:
+    branches:
+      - dev
+      - prod
 
 permissions:
   id-token: write
@@ -39,7 +43,8 @@ jobs:
             "tenantId":"${{ env.TENANT_ID }}"
             }
 
-      - name: Deploy Bicep template
+      - name: Reconciliate Bicep template
+        id: reconciliate
         uses: azure/arm-deploy@v2
         with:
           scope: subscription
@@ -49,3 +54,36 @@ jobs:
           parameters: >
             infra/main.${{ env.ENVIRONMENT }}.bicepparam
           additionalArguments: "--what-if"
+
+      - uses: actions/github-script@v7
+        if: github.event_name == 'pull_request'
+        env:
+          PLAN: "biceps\n${{ steps.reconciliate.outputs.stdout }}"
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const output = `#### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
+            #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
+            #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
+            <details><summary>Validation Output</summary>
+
+            </details>
+
+            #### Biceps Reconciliation Plan 📖\`${{ steps.reconciliate.outcome }}\`
+
+            <details><summary>Show Plan</summary>
+
+            \`\`\`\n
+            ${process.env.PLAN}
+            \`\`\`
+
+            </details>
+
+            *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \, Workflow: \`${{ github.workflow }}\`*`;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            })

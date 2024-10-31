@@ -6,7 +6,7 @@ var location = deployment.location
 var containerImage = 'mcr.microsoft.com/azuredocs/containerapps-helloworld:${imageVersion}'
 
 var sharedResourceGroup = 'cnsshared'
-var apimName = 'cnsshared-apim'
+// var apimName = 'cnsshared-apim'
 var crName = 'cnssharedcr'
 
 var landingContainerName = 'landing'
@@ -16,10 +16,11 @@ var landingContainerName = 'landing'
 //
 // Shared
 //
-resource apim 'Microsoft.ApiManagement/service@2024-05-01' existing = {
-  name: apimName
-  scope: resourceGroup(sharedResourceGroup)
-}
+// Todo removed until used, to avoid Biceps failing in the pipeline
+// resource apim 'Microsoft.ApiManagement/service@2024-05-01' existing = {
+//   name: apimName
+//   scope: resourceGroup(sharedResourceGroup)
+// }
 
 resource containerRegistry 'Microsoft.ContainerRegistry/registries@2023-07-01' existing = {
   name: crName
