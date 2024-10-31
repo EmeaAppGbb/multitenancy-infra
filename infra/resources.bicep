@@ -3,7 +3,6 @@ param imageVersion string
 
 var prefix = deployment.name
 var location = deployment.location
-var containerImage = 'mcr.microsoft.com/azuredocs/containerapps-helloworld:${imageVersion}'
 
 var sharedResourceGroup = 'cnsshared'
 var crName = 'cnssharedcr'
@@ -129,7 +128,7 @@ module contianerApp 'br/public:avm/res/app/container-app:0.9.0' = if (deployment
     environmentResourceId: containerEnvironment.outputs.resourceId
     containers: [
       {
-        image: containerImage
+        image: imageVersion
         name: 'app'
         resources: {
           cpu: '0.25'

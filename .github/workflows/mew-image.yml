@@ -22,8 +22,10 @@ jobs:
           echo "Updating image to $IMAGE"
           sed -i "s|param imageVersion = '.*'|param imageVersion = '$IMAGE'|" ./infra/main.DEV.bicepparam
           sed -i "s|param imageVersion = '.*'|param imageVersion = '$IMAGE'|" ./infra/main.PROD.bicepparam
-          echo "---"
+          echo "---DEV---"
           echo $(cat ./infra/main.DEV.bicepparam)
+          echo "---PROD---""
+          echo $(cat ./infra/main.PROD.bicepparam)
       - name: Commit and push changes
         run: |
           git config --global user.name 'github-actions[bot]'
@@ -37,8 +39,8 @@ jobs:
         id: generate-token
         uses: actions/create-github-app-token@v1
         with:
-            app-id: ${{ secrets.APP_ID }}
-            private-key: ${{ secrets.APP_PRIVATE_KEY }}
+            app-id: ${{ env.GH_APP_ID }}
+            private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
             owner: ${{ github.repository_owner }}
       - name: Create a PR
         run: |
