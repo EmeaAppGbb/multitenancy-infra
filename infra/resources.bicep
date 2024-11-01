@@ -59,6 +59,7 @@ module containerApp 'br/public:avm/res/app/container-app:0.9.0' = if (deployment
     location: location
     environmentResourceId: containerEnvironment.outputs.resourceId
     managedIdentities: {
+      systemAssigned: true
       userAssignedResourceIds: [
         identity.outputs.resourceId
       ]
