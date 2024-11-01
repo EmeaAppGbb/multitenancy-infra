@@ -33,6 +33,12 @@ module configurationStore 'br/public:avm/res/app-configuration/configuration-sto
     location: location
     disableLocalAuth: false
     softDeleteRetentionInDays: 1
+    roleAssignments: [
+      {
+        roleDefinitionIdOrName: 'App Configuration Data Owner'
+        principalId: containerApp.outputs.systemAssignedMIPrincipalId
+      }
+    ]
   }
 }
 
@@ -42,9 +48,6 @@ module containerEnvironment 'br/public:avm/res/app/managed-environment:0.8.0' = 
     name: '${prefix}-cae'
     location: location
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspace.outputs.resourceId
-    managedIdentities: {
-      systemAssigned: true
-    }
     zoneRedundant: false
   }
 }
@@ -56,12 +59,14 @@ module containerApp 'br/public:avm/res/app/container-app:0.9.0' = if (deployment
     location: location
     environmentResourceId: containerEnvironment.outputs.resourceId
     managedIdentities: {
-      systemAssigned: true
+      userAssignedResourceIds: [
+        identity.outputs.resourceId
+      ]
     }
     registries: [
       {
         server: containerRegistry.properties.loginServer
-        identity: 'system'
+        identity: identity.outputs.resourceId
       }
     ]
     containers: [
@@ -77,14 +82,22 @@ module containerApp 'br/public:avm/res/app/container-app:0.9.0' = if (deployment
   }
 }
 
+module identity 'br/public:avm/res/managed-identity/user-assigned-identity:0.4.0' = if (deployment.includeApp) {
+  name: 'admin-app-identity'
+  params: {
+    name: '${prefix}-identity'
+    location: location
+  }
+}
+
 module roleAssignment1 'br/public:avm/ptn/authorization/resource-role-assignment:0.1.1' = if (deployment.includeApp) {
   name: '${prefix}-role-assignment-1'
   scope: resourceGroup(sharedResourceGroup)
   params: {
     resourceId: containerRegistry.id
-    principalId: containerApp.outputs.systemAssignedMIPrincipalId
-    roleDefinitionId: '7f951dda-4ed3-4680-a7ca-43fe172d538d'
-    roleName: 'AcrPull'
+    principalId: identity.outputs.principalId
+    roleDefinitionId: 'b24988ac-6180-42a0-ab88-20f7382dd24c'
+    roleName: 'Contributor'
   }
 }
 
