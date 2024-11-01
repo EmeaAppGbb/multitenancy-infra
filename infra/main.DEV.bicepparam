@@ -1,6 +1,6 @@
 using './main.bicep'
 
-param imageVersion = 'cnssharedcr.azurecr.io/helloworld:sha-5256e13'
+param imageVersion = 'cnssharedcr.azurecr.io/helloworld:sha-dbe57eb'
 param environmentName = 'dev'
 
 param tenantList = [
