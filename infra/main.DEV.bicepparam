@@ -5,7 +5,7 @@ param environmentName = 'dev'
 
 param tenants = [
   {
-    name: 'cnsdev'
+    name: 'cnsdev2'
     location: 'swedencentral'
     includeApp: true
     includeDataAndML: true

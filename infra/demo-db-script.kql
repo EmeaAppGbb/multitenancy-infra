@@ -1,17 +1,26 @@
-.create table CustomerData (object: string, ['time']: datetime, pmCounter1: long, pmCounter2: long, pmCounter3: long, pmCounter4: long, pmCounter5: long, pmCounter6: long, pmCounter7: long, pmCounter8: long, pmCounter9: long, pmCounter10: long, pmCounter11: long, pmCounter12: long, pmCounter13: long, pmCounter14: long, pmCounter15: long, pmCounter16: long, pmCounter17: long, pmCounter18: long, pmCounter19: long, pmCounter20: long, pmCounter21: long, pmCounter22: long, pmCounter23: long, pmCounter24: long, pmCounter25: long, pmCounter26: long, pmCounter27: long, pmCounter28: long, pmCounter29: long, pmCounter30: long, pmCounter31: long, pmCounter32: long, pmCounter33: long, pmCounter34: long, pmCounter35: long, pmCounter36: long, pmCounter37: long, pmCounter38: long, pmCounter39: long, pmCounter40: long, pmCounter41: long, pmCounter42: long, pmCounter43: long, pmCounter44: long, pmCounter45: long, pmCounter46: long, pmCounter47: long, pmCounter48: long, pmCounter49: long, pmCounter50: long, pmCounter51: long, pmCounter52: long, pmCounter53: long, pmCounter54: long, pmCounter55: long, pmCounter56: long, pmCounter57: long, pmCounter58: long, pmCounter59: long, pmCounter60: long, pmCounter61: long, pmCounter62: long, pmCounter63: long, pmCounter64: long, pmCounter65: long, pmCounter66: long, pmCounter67: long, pmCounter68: long, pmCounter69: long, pmCounter70: long, pmCounter71: long, pmCounter72: long, pmCounter73: long, pmCounter74: long, pmCounter75: long, pmCounter76: long, pmCounter77: long, pmCounter78: long, pmCounter79: long, pmCounter80: long, pmCounter81: long, pmCounter82: long, pmCounter83: long, pmCounter84: long, pmCounter85: long, pmCounter86: long, pmCounter87: long, pmCounter88: long, pmCounter89: long, pmCounter90: long, pmCounter91: long, pmCounter92: long, pmCounter93: long, pmCounter94: long, pmCounter95: long, pmCounter96: long, pmCounter97: long, pmCounter98: long, pmCounter99: long, pmCounter100: long)
-    .create table Predictions (Object: string, MlPrediction: int)  
-    .create-or-alter function ingestionSummary() {
-    CustomerData
-| extend timeIngested = ingestion_time()
-| summarize NumberOfRows = count() by timeIngested
-}
-.create-or-alter function SummarizeData(CounterName: string) {
-CustomerData
-| summarize
-avg=avg(case(CounterName=="pmCounter1", pmCounter1, CounterName=="pmCounter2", pmCounter2, CounterName=="pmCounter3", pmCounter3, 0))
-, median= percentile(case(CounterName=="pmCounter1", pmCounter1, CounterName=="pmCounter2", pmCounter2, CounterName=="pmCounter3", pmCounter3, 0), 50)  
-, min=min(case(CounterName=="pmCounter1", pmCounter1, CounterName=="pmCounter2", pmCounter2, CounterName=="pmCounter3", pmCounter3, 0))
-, max=max(case(CounterName=="pmCounter1", pmCounter1, CounterName=="pmCounter2", pmCounter2, CounterName=="pmCounter3", pmCounter3, 0))
-, stdev=stdev(case(CounterName=="pmCounter1", pmCounter1, CounterName=="pmCounter2", pmCounter2, CounterName=="pmCounter3", pmCounter3, 0))
-by CounterName = CounterName, object
-}
+.create-or-alter function SummarizeData(CounterName: string)
+ {
+     CustomerData
+    | summarize 
+        avg=avg(case(CounterName == "pmCounter1", pmCounter1, CounterName == "pmCounter2", pmCounter2, CounterName == "pmCounter3", pmCounter3, 0))
+        ,
+        median= percentile(case(CounterName == "pmCounter1", pmCounter1, CounterName == "pmCounter2", pmCounter2, CounterName == "pmCounter3", pmCounter3, 0), 50)   
+        ,
+        min=min(case(CounterName == "pmCounter1", pmCounter1, CounterName == "pmCounter2", pmCounter2, CounterName == "pmCounter3", pmCounter3, 0))
+        ,
+        max=max(case(CounterName == "pmCounter1", pmCounter1, CounterName == "pmCounter2", pmCounter2, CounterName == "pmCounter3", pmCounter3, 0))
+        ,
+        stdev=stdev(case(CounterName == "pmCounter1", pmCounter1, CounterName == "pmCounter2", pmCounter2, CounterName == "pmCounter3", pmCounter3, 0)) 
+        by CounterName = CounterName, object
+ }
+
+.create-or-alter function ingestionSummary()
+ {
+     CustomerData
+    | extend timeIngested = ingestion_time()
+    | summarize NumberOfRows = count() by timeIngested
+ }
+
+.create table CustomerData (object: string, ['time']: datetime, pmCounter1: long, pmCounter2: long, pmCounter3: long, pmCounter4: long, pmCounter5: long, pmCounter6: long, pmCounter7: long, pmCounter8: long, pmCounter9: long, pmCounter10: long, pmCounter11: long, pmCounter12: long, pmCounter13: long, pmCounter14: long, pmCounter15: long, pmCounter16: long, pmCounter17: long, pmCounter18: long, pmCounter19: long, pmCounter20: long, pmCounter21: long, pmCounter22: long, pmCounter23: long, pmCounter24: long, pmCounter25: long, pmCounter26: long, pmCounter27: long, pmCounter28: long, pmCounter29: long, pmCounter30: long, pmCounter31: long, pmCounter32: long, pmCounter33: long, pmCounter34: long, pmCounter35: long, pmCounter36: long, pmCounter37: long, pmCounter38: long, pmCounter39: long, pmCounter40: long, pmCounter41: long, pmCounter42: long, pmCounter43: long, pmCounter44: long, pmCounter45: long, pmCounter46: long, pmCounter47: long, pmCounter48: long, pmCounter49: long, pmCounter50: long, pmCounter51: long, pmCounter52: long, pmCounter53: long, pmCounter54: long, pmCounter55: long, pmCounter56: long, pmCounter57: long, pmCounter58: long, pmCounter59: long, pmCounter60: long, pmCounter61: long, pmCounter62: long, pmCounter63: long, pmCounter64: long, pmCounter65: long, pmCounter66: long, pmCounter67: long, pmCounter68: long, pmCounter69: long, pmCounter70: long, pmCounter71: long, pmCounter72: long, pmCounter73: long, pmCounter74: long, pmCounter75: long, pmCounter76: long, pmCounter77: long, pmCounter78: long, pmCounter79: long, pmCounter80: long, pmCounter81: long, pmCounter82: long, pmCounter83: long, pmCounter84: long, pmCounter85: long, pmCounter86: long, pmCounter87: long, pmCounter88: long, pmCounter89: long, pmCounter90: long, pmCounter91: long, pmCounter92: long, pmCounter93: long, pmCounter94: long, pmCounter95: long, pmCounter96: long, pmCounter97: long, pmCounter98: long, pmCounter99: long, pmCounter100: long) 
+
+.create table Predictions (Object: string, MlPrediction: int) 
