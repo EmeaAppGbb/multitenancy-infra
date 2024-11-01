@@ -39,6 +39,16 @@ jobs:
             "tenantId":"${{ env.TENANT_ID }}"
             }
 
+      - name: Debug --parameters
+        run: |
+          echo "github-ref: ${{ github.ref }}"
+          echo "pull_request.base.ref: ${{ github.event.pull_request.base.ref }}"
+          echo "ENVIRONMENT: ${{ env.ENVIRONMENT }}"
+          echo "---"
+          ls -la infra
+          echo "---"
+          cat infra/main.${{ env.ENVIRONMENT }}.bicepparam
+          
       - name: Delete tenants
         uses: azure/powershell@v2
         if: env.ENVIRONMENT == 'PROD'
