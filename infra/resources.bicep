@@ -6,6 +6,8 @@ var location = deployment.location
 
 var sharedResourceGroup = 'cnsshared'
 var crName = 'cnssharedcr'
+var adpimResrouceGroup = 'customertenant001adx'
+var apimName = 'customertenant001APIM'
 var landingContainerName = 'landing'
 var demoGroupId = '8691cafd-ff9e-4817-98b4-2ef749b2b041' // DemoDataApp-GitOps
 var apimClientId = 'cd4f6b8d-7d8e-4742-8ae7-3d38038c186b'
@@ -21,9 +23,75 @@ resource containerRegistry 'Microsoft.ContainerRegistry/registries@2023-07-01' e
 }
 
 //
-// Common
+// App
 //
-module logAnalyticsWorkspace 'br/public:avm/res/operational-insights/workspace:0.7.0' = {
+module configurationStore 'br/public:avm/res/app-configuration/configuration-store:0.5.1' = if (deployment.includeApp) {
+  name: '${prefix}-configuration-store'
+  params: {
+    name: '${prefix}-appcs'
+    enablePurgeProtection: false
+    location: location
+    disableLocalAuth: false
+    softDeleteRetentionInDays: 1
+  }
+}
+
+module containerEnvironment 'br/public:avm/res/app/managed-environment:0.8.0' = if (deployment.includeApp) {
+  name: '${prefix}-managed-environment'
+  params: {
+    name: '${prefix}-cae'
+    location: location
+    logAnalyticsWorkspaceResourceId: logAnalyticsWorkspace.outputs.resourceId
+    managedIdentities: {
+      systemAssigned: true
+    }
+    zoneRedundant: false
+  }
+}
+
+module containerApp 'br/public:avm/res/app/container-app:0.9.0' = if (deployment.includeApp) {
+  name: '${prefix}-container-app'
+  params: {
+    name: '${prefix}-ca'
+    location: location
+    environmentResourceId: containerEnvironment.outputs.resourceId
+    managedIdentities: {
+      systemAssigned: true
+    }
+    registries: [
+      {
+        server: containerRegistry.properties.loginServer
+        identity: 'system'
+      }
+    ]
+    containers: [
+      {
+        image: imageVersion
+        name: 'app'
+        resources: {
+          cpu: '0.25'
+          memory: '0.5Gi'
+        }
+      }
+    ]
+  }
+}
+
+module roleAssignment1 'br/public:avm/ptn/authorization/resource-role-assignment:0.1.1' = if (deployment.includeApp) {
+  name: '${prefix}-role-assignment-1'
+  scope: resourceGroup(sharedResourceGroup)
+  params: {
+    resourceId: containerRegistry.id
+    principalId: containerApp.outputs.systemAssignedMIPrincipalId
+    roleDefinitionId: '7f951dda-4ed3-4680-a7ca-43fe172d538d'
+    roleName: 'AcrPull'
+  }
+}
+
+//
+// Data & ML
+// 
+module logAnalyticsWorkspace 'br/public:avm/res/operational-insights/workspace:0.7.0' = if (deployment.includeDataAndML) {
   name: '${prefix}-log'
   params: {
     name: '${prefix}-log'
@@ -74,7 +142,7 @@ module logAnalyticsWorkspace 'br/public:avm/res/operational-insights/workspace:0
   }
 }
 
-module applicationInsights 'br/public:avm/res/insights/component:0.4.1' = {
+module applicationInsights 'br/public:avm/res/insights/component:0.4.1' = if (deployment.includeDataAndML) {
   name: '${prefix}-app-insights'
   params: {
     name: '${prefix}-appi'
@@ -93,72 +161,6 @@ module keyVault 'br/public:avm/res/key-vault/vault:0.9.0' = {
   }
 }
 
-//
-// App
-//
-module configurationStore 'br/public:avm/res/app-configuration/configuration-store:0.5.1' = if (deployment.includeApp) {
-  name: '${prefix}-configuration-store'
-  params: {
-    name: '${prefix}-appcs'
-    enablePurgeProtection: false
-    location: location
-    disableLocalAuth: false
-    softDeleteRetentionInDays: 1
-  }
-}
-
-module containerEnvironment 'br/public:avm/res/app/managed-environment:0.8.0' = if (deployment.includeApp) {
-  name: '${prefix}-managed-environment'
-  params: {
-    name: '${prefix}-cae'
-    location: location
-    logAnalyticsWorkspaceResourceId: logAnalyticsWorkspace.outputs.resourceId
-    managedIdentities: {
-      systemAssigned: true
-    }
-    zoneRedundant: false
-  }
-}
-
-module contianerApp 'br/public:avm/res/app/container-app:0.9.0' = if (deployment.includeApp) {
-  name: '${prefix}-container-app'
-  params: {
-    name: '${prefix}-ca'
-    location: location
-    environmentResourceId: containerEnvironment.outputs.resourceId
-    containers: [
-      {
-        image: imageVersion
-        name: 'app'
-        resources: {
-          cpu: '0.25'
-          memory: '0.5Gi'
-        }
-        env: [
-            {
-              name: 'AppConfig'
-              value: configurationStore.outputs.endpoint
-            }
-          ]
-      }
-    ]
-  }
-}
-
-module roleAssignment1 'br/public:avm/ptn/authorization/resource-role-assignment:0.1.1' = if (deployment.includeApp) {
-  name: '${prefix}-role-assignment-1'
-  scope: resourceGroup(sharedResourceGroup)
-  params: {
-    resourceId: containerRegistry.id
-    principalId: containerEnvironment.outputs.systemAssignedMIPrincipalId
-    roleDefinitionId: '7f951dda-4ed3-4680-a7ca-43fe172d538d'
-    roleName: 'AcrPull'
-  }
-}
-
-//
-// Data & ML
-// 
 module storageAccount 'br/public:avm/res/storage/storage-account:0.9.1' = if (deployment.includeDataAndML) {
   name: '${prefix}-storage-account'
   params: {
@@ -315,6 +317,17 @@ module kusto 'br/public:avm/res/kusto/cluster:0.3.2' = if (deployment.includeDat
         workspaceResourceId: logAnalyticsWorkspace.outputs.resourceId
       }
     ]
+  }
+}
+
+module apimConfig 'modules/apim-add-tenant.bicep' = if (deployment.includeDataAndML) {
+  name: '${prefix}-apim-config'
+  scope: resourceGroup(adpimResrouceGroup)
+  params: {
+    apimName: apimName
+    kustoName: kusto.outputs.name
+    kustoRg: resourceGroup().name
+    tenantName: deployment.name
   }
 }
 

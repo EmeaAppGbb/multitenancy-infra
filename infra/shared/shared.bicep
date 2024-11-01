@@ -11,14 +11,3 @@ module containerRegistry 'br/public:avm/res/container-registry/registry:0.5.1' =
     acrAdminUserEnabled: true
   }
 }
-
-module apim 'br/public:avm/res/api-management/service:0.6.0' = {
-  name: 'api-management'
-  params: {
-    name: '${prefix}-apim'
-    location: location
-    publisherEmail: 'admin@example.com'
-    publisherName: 'CNS'
-    sku: 'Developer'
-  }
-}
