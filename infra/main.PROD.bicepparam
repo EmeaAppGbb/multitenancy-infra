@@ -5,9 +5,9 @@ param environmentName = 'prod'
 
 param tenantList = [
   {
-    name: 'customer1'
+    name: 'realtenant'
     location: 'swedencentral'
-    includeApp: false
-    includeDataAndML: false
+    includeApp: true
+    includeDataAndML: true
   }
 ]
