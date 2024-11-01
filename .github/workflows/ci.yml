@@ -52,8 +52,9 @@ jobs:
       - name: Delete tenants
         uses: azure/powershell@v2
         with:
-          inlineScript: ./infra/Remove-Tenants.ps1
-          args: >
+          targetType: 'filePath'
+          filePath: ./infra/Remove-Tenants.ps1
+          arguments: >
             -EnvironmentName "${{ env.ENVIRONMENT }}"
           azPSVersion: latest
 
