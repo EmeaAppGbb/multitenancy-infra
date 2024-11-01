@@ -1,5 +1,5 @@
 ---
-name: Pull Request Pipeline
+name: Plan Reconciliation
 run-name: '[PR #${{github.event.pull_request.number}}] Plan Reconciliation [Branch: ${{ github.base_ref  }}]'
 
 on:
