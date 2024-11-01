@@ -1,0 +1,34 @@
+
+name: Reconciliation
+run-name: '[PR #${{github.event.pull_request.number}}] [Continuos Reconciliation] [EnvironmentL: ${{ github.ref }}]'
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - test
+  pull_request:
+    branches:
+      - test
+
+jobs:
+  deploy-environments:
+    name: Build reconciliation plan
+    runs-on: ubuntu-latest
+    env:
+      TENANT_ID: 380adf45-465e-486c-92c1-a3a9e4f6c62d
+      SUBSCRIPTION_ID: 3e1e6407-7334-4898-bb27-b68e97a6b32e # ME-MngEnvMCAP402121-playground
+      # https://portal.azure.com/?feature.msaljs=true#view/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/~/Overview/appId/f2e9146b-f46e-4ddd-9367-4e4b9fa06fa9/isMSAApp~/false
+      # AppReg that has Owner permissions on the subscription
+      CLIENT_ID: f2e9146b-f46e-4ddd-9367-4e4b9fa06fa9
+      ENVIRONMENT: ${{ github.event.pull_request.base.ref == 'prod' && 'PROD' || 'DEV' }}
+    permissions:
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deployment definition log
+        run: |
+          echo "ENVIRONMENT: ${{ env.ENVIRONMENT }}"
+          echo "---"
+          cat infra/main.${{ env.ENVIRONMENT }}.bicepparam
