@@ -61,9 +61,8 @@ jobs:
           
       - name: Delete tenants
         uses: azure/powershell@v2
-        if: env.ENVIRONMENT == 'PROD'
         with:
-          inlineScript: ./infra/Remove-Tenants.ps1
+          inlineScript: ./infra/Remove-Tenants.ps1 -EnvironmentName "${{ env.ENVIRONMENT }}"
           azPSVersion: latest
 
       - name: Deploy Bicep template

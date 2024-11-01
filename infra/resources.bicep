@@ -134,6 +134,12 @@ module contianerApp 'br/public:avm/res/app/container-app:0.9.0' = if (deployment
           cpu: '0.25'
           memory: '0.5Gi'
         }
+        env: [
+            {
+              name: 'AppConfig'
+              value: configurationStore.outputs.endpoint
+            }
+          ]
       }
     ]
   }
