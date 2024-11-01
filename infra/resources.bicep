@@ -140,7 +140,7 @@ module containerApp 'br/public:avm/res/app/container-app:0.9.0' = if (deployment
 module identity 'br/public:avm/res/managed-identity/user-assigned-identity:0.4.0' = if (deployment.includeApp) {
   name: 'admin-app-identity'
   params: {
-    name: '${prefix}-identity'
+    name: '${prefix}-id'
     location: location
   }
 }
