@@ -1,9 +1,6 @@
 param deployment object
 param imageVersion string
 
-@secure()
-param aadSecret string // = 'shoud_be_tenant_based'
-
 var prefix = deployment.name
 var location = deployment.location
 
@@ -14,6 +11,9 @@ var apimName = 'customertenant001APIM'
 var landingContainerName = 'landing'
 var demoGroupId = '8691cafd-ff9e-4817-98b4-2ef749b2b041' // DemoDataApp-GitOps
 var apimClientId = 'cd4f6b8d-7d8e-4742-8ae7-3d38038c186b'
+// Params for ACA easyauth
+@secure()
+param aadSecret string // = 'shoud_be_tenant_based'
 var aadClientId = '92d6b876-76df-4eb9-8a63-46ddcebae4c6' // = 'shoud_be_tenant_based'
 var aadTenantId = '380adf45-465e-486c-92c1-a3a9e4f6c62d' // = 'shoud_be_tenant_based'
 
@@ -100,8 +100,8 @@ module configurationStore 'br/public:avm/res/app-configuration/configuration-sto
         value: '1'
       }
       {
-        name: 'HelloWorldApp:Settings:GreetingConfiguration'
-        value: 'CNS'
+        name: 'GreetingConfiguration'
+        value: 'CNS Customer'
       }
     ]
   }
