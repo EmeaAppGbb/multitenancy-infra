@@ -7,8 +7,8 @@ param tenants = [
   {
     name: 'customer1'
     location: 'swedencentral'
-    includeApp: true
-    includeDataAndML: true
+    includeApp: false
+    includeDataAndML: false
   }
   {
     name: 'cnsdev2'
