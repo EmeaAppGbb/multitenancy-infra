@@ -59,4 +59,4 @@ jobs:
           template: infra/main.bicep
           region: westeurope
           parameters: >
-            infra/main.${{ env.ENVIRONMENT }}.bicepparam
+            infra/main.${{ env.ENVIRONMENT }}.bicepparam easyAuthSPSecret=${{ secrets.EASYAUTH_SP_SECRET }}
