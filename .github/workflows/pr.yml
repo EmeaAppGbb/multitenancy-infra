@@ -28,13 +28,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Debug --parameters
+      - name: Deployment definition log
         run: |
-          echo "github-ref: ${{ github.ref }}"
-          echo "pull_request.base.ref: ${{ github.event.pull_request.base.ref }}"
           echo "ENVIRONMENT: ${{ env.ENVIRONMENT }}"
-          echo "---"
-          ls -la infra
           echo "---"
           cat infra/main.${{ env.ENVIRONMENT }}.bicepparam
           
