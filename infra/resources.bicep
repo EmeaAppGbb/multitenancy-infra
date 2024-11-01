@@ -6,9 +6,18 @@ var location = deployment.location
 
 var sharedResourceGroup = 'cnsshared'
 var crName = 'cnssharedcr'
+var adpimResrouceGroup = 'customertenant001adx'
+var apimName = 'customertenant001APIM'
 var landingContainerName = 'landing'
 var demoGroupId = '8691cafd-ff9e-4817-98b4-2ef749b2b041' // DemoDataApp-GitOps
 var apimClientId = 'cd4f6b8d-7d8e-4742-8ae7-3d38038c186b'
+// Params for ACA easyauth
+@secure()
+param aadSecret string // = 'shoud_be_tenant_based'
+var aadClientId = '92d6b876-76df-4eb9-8a63-46ddcebae4c6' // = 'shoud_be_tenant_based'
+var aadTenantId = '380adf45-465e-486c-92c1-a3a9e4f6c62d' // = 'shoud_be_tenant_based'
+
+
 
 // Resource type abbreviations: https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/ready/azure-best-practices/resource-abbreviations
 
@@ -74,25 +83,6 @@ module logAnalyticsWorkspace 'br/public:avm/res/operational-insights/workspace:0
   }
 }
 
-module applicationInsights 'br/public:avm/res/insights/component:0.4.1' = {
-  name: '${prefix}-app-insights'
-  params: {
-    name: '${prefix}-appi'
-    location: location
-    workspaceResourceId: logAnalyticsWorkspace.outputs.resourceId
-  }
-}
-
-module keyVault 'br/public:avm/res/key-vault/vault:0.9.0' = {
-  name: '${prefix}-key-vault'
-  params: {
-    name: '${prefix}-kv'
-    location: location
-    enablePurgeProtection: false
-    softDeleteRetentionInDays: 7
-  }
-}
-
 //
 // App
 //
@@ -104,6 +94,16 @@ module configurationStore 'br/public:avm/res/app-configuration/configuration-sto
     location: location
     disableLocalAuth: false
     softDeleteRetentionInDays: 1
+    keyValues:[
+      {
+        name: 'HelloWorldApp:Settings:Sentinel'
+        value: '1'
+      }
+      {
+        name: 'GreetingConfiguration'
+        value: 'CNS Customer'
+      }
+    ]
   }
 }
 
@@ -113,19 +113,42 @@ module containerEnvironment 'br/public:avm/res/app/managed-environment:0.8.0' = 
     name: '${prefix}-cae'
     location: location
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspace.outputs.resourceId
-    managedIdentities: {
-      systemAssigned: true
-    }
     zoneRedundant: false
+    workloadProfiles: [
+      {
+        name: 'Consumption'
+        workloadProfileType: 'Consumption'
+      }
+    ]
   }
 }
 
-module contianerApp 'br/public:avm/res/app/container-app:0.9.0' = if (deployment.includeApp) {
+module containerApp 'br/public:avm/res/app/container-app:0.9.0' = if (deployment.includeApp) {
   name: '${prefix}-container-app'
   params: {
     name: '${prefix}-ca'
     location: location
     environmentResourceId: containerEnvironment.outputs.resourceId
+    managedIdentities: {
+      systemAssigned: true
+      userAssignedResourceIds: [
+        identity.outputs.resourceId
+      ]
+    }
+    secrets: {
+      secureList: [
+        {
+          name: 'microsoft-provider-authentication-secret'
+          value: aadSecret
+        }
+      ]
+    }
+    registries: [
+      {
+        server: containerRegistry.properties.loginServer
+        identity: identity.outputs.resourceId
+      }
+    ]
     containers: [
       {
         image: imageVersion
@@ -135,13 +158,30 @@ module contianerApp 'br/public:avm/res/app/container-app:0.9.0' = if (deployment
           memory: '0.5Gi'
         }
         env: [
-            {
-              name: 'AppConfig'
-              value: configurationStore.outputs.endpoint
-            }
-          ]
+          {
+            name: 'AppConfig__Endpoint'
+            value: configurationStore.outputs.endpoint
+          }
+        ]
       }
     ]
+  }
+}
+
+module easyAuth 'modules/aca-auth.bicep' = if (deployment.includeApp) {
+  name: 'aca-easy-auth'
+  params: {
+    containerAppName: containerApp.outputs.name
+    aadClientId: aadClientId
+    aadTenantId: aadTenantId
+  }
+}
+
+module identity 'br/public:avm/res/managed-identity/user-assigned-identity:0.4.0' = if (deployment.includeApp) {
+  name: 'admin-app-identity'
+  params: {
+    name: '${prefix}-id'
+    location: location
   }
 }
 
@@ -150,15 +190,46 @@ module roleAssignment1 'br/public:avm/ptn/authorization/resource-role-assignment
   scope: resourceGroup(sharedResourceGroup)
   params: {
     resourceId: containerRegistry.id
-    principalId: containerEnvironment.outputs.systemAssignedMIPrincipalId
-    roleDefinitionId: '7f951dda-4ed3-4680-a7ca-43fe172d538d'
-    roleName: 'AcrPull'
+    principalId: identity.outputs.principalId
+    principalType: 'ServicePrincipal'
+    roleDefinitionId: 'b24988ac-6180-42a0-ab88-20f7382dd24c'
+    roleName: 'Contributor'
+  }
+}
+
+module roleAssignment6 'br/public:avm/ptn/authorization/resource-role-assignment:0.1.1' = if (deployment.includeApp) {
+  name: '${prefix}-role-assignment-6'
+  params: {
+    resourceId: configurationStore.outputs.resourceId
+    principalId: containerApp.outputs.systemAssignedMIPrincipalId
+    principalType: 'ServicePrincipal'
+    roleDefinitionId: 'b24988ac-6180-42a0-ab88-20f7382dd24c'
+    roleName: 'App Configuration Data Owner'
   }
 }
 
 //
 // Data & ML
 // 
+module applicationInsights 'br/public:avm/res/insights/component:0.4.1' = if (deployment.includeDataAndML) {
+  name: '${prefix}-app-insights'
+  params: {
+    name: '${prefix}-appi'
+    location: location
+    workspaceResourceId: logAnalyticsWorkspace.outputs.resourceId
+  }
+}
+
+module keyVault 'br/public:avm/res/key-vault/vault:0.9.0' = if (deployment.includeDataAndML) {
+  name: '${prefix}-key-vault'
+  params: {
+    name: '${prefix}-kv'
+    location: location
+    enablePurgeProtection: false
+    softDeleteRetentionInDays: 7
+  }
+}
+
 module storageAccount 'br/public:avm/res/storage/storage-account:0.9.1' = if (deployment.includeDataAndML) {
   name: '${prefix}-storage-account'
   params: {
@@ -315,6 +386,17 @@ module kusto 'br/public:avm/res/kusto/cluster:0.3.2' = if (deployment.includeDat
         workspaceResourceId: logAnalyticsWorkspace.outputs.resourceId
       }
     ]
+  }
+}
+
+module apimConfig 'modules/apim-add-tenant.bicep' = if (deployment.includeDataAndML) {
+  name: '${prefix}-apim-config'
+  scope: resourceGroup(adpimResrouceGroup)
+  params: {
+    apimName: apimName
+    kustoName: kusto.outputs.name
+    kustoRg: resourceGroup().name
+    tenantName: deployment.name
   }
 }
 

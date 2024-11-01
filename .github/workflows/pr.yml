@@ -1,5 +1,6 @@
 ---
-name: Pull Request Pipeline
+name: Plan Reconciliation
+run-name: '[PR #${{github.event.pull_request.number}}] Plan Reconciliation [Branch: ${{ github.base_ref  }}]'
 
 on:
   workflow_dispatch:
@@ -28,13 +29,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Debug --parameters
+      - name: Deployment definition log
         run: |
-          echo "github-ref: ${{ github.ref }}"
-          echo "pull_request.base.ref: ${{ github.event.pull_request.base.ref }}"
           echo "ENVIRONMENT: ${{ env.ENVIRONMENT }}"
-          echo "---"
-          ls -la infra
           echo "---"
           cat infra/main.${{ env.ENVIRONMENT }}.bicepparam
           
@@ -54,7 +51,7 @@ jobs:
       - name: Make deployment plan
         id: deploymentplan
         run: |
-          az deployment sub create --location westeurope --template-file infra/main.bicep --parameters infra/main.${{ env.ENVIRONMENT }}.bicepparam --what-if >> plan.txt
+          az deployment sub create --location westeurope --template-file infra/main.bicep --parameters infra/main.${{ env.ENVIRONMENT }}.bicepparam --parameters easyAuthSPSecret=${{ secrets.EASYAUTH_SP_SECRET }} --what-if >> plan.txt
           echo "$(cat plan.txt)"         
 
       - uses: actions/github-script@v7

@@ -1,3 +1,61 @@
 .create table FailedIngestion (['records']: dynamic)
 .create table IngestionBatching (['records']: dynamic)
 .create table SucceededIngestion (['records']: dynamic)
+
+.create-or-alter function  FailedIngestions() {
+    FailedIngestion
+    | mv-expand records
+    | where records.Database == "DemoDatabase"
+    | project 
+        Database = records.Database,
+		Details = records.Details,
+		ErrorCode = records.ErrorCode,
+		FailedOn = records.FailedOn,
+		FailureStatus = records.FailureStatus,
+		IngestionSourceId = records.IngestionSourceId,
+		IngestionSourcePath = records.IngestionSourcePath,
+		OperationId = records.OperationId,
+		OriginatesFromUpdatePolicy = records.OriginatesFromUpdatePolicy,
+		ResultType = records.ResultType,
+		RootActivityId = records.RootActivityId,
+		ShouldRetry = records.ShouldRetry,
+		SourceSystem = records.SourceSystem,
+		Table = records.Table,
+		TenantId = records.TenantId,
+		TimeGenerated = records.TimeGenerated,
+		Type = records.Type,
+		ItemId = records.ItemId,
+		Internal_WorkspaceResourceId = records.Internal_WorkspaceResourceId,
+		ResourceId = records.ResourceId
+}
+
+.create-or-alter function  SuccessfulIngestions() {
+    SucceededIngestion
+    | mv-expand records
+    | where records.Database == "DemoDatabase"
+    | project 
+Database=records.Database,
+IngestionSourceId=records.IngestionSourceId,
+IngestionSourcePath=records.IngestionSourcePath,
+OperationId=records.OperationId,
+ResultType=records.ResultType,
+RootActivityId=records.RootActivityId,
+SourceSystem=records.SourceSystem,
+SucceededOn=records.SucceededOn,
+Table=records.Table,
+TenantId=records.TenantId,
+TimeGenerated=records.TimeGenerated,
+Type=records.Type,
+_ItemId=records._ItemId,
+_Internal_WorkspaceResourceId=records._Internal_WorkspaceResourceId,
+_ResourceId=records._ResourceId
+}
+
+.create-or-alter function  IngestionResults() {
+SuccessfulIngestions
+|project Database,IngestionSourcePath,ResultType,Table, todatetime(TimeGenerated)
+|union (FailedIngestions
+|project Database,IngestionSourcePath,ResultType,Table , todatetime(TimeGenerated)
+)
+|order by TimeGenerated desc 
+}

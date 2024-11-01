@@ -1,4 +1,4 @@
-name: Application Image Update
+name: Application Version Update
 
 on:
   repository_dispatch:
