@@ -87,6 +87,16 @@ module configurationStore 'br/public:avm/res/app-configuration/configuration-sto
     location: location
     disableLocalAuth: false
     softDeleteRetentionInDays: 1
+    keyValues:[
+      {
+        name: 'HelloWorldApp:Settings:Sentinel'
+        value: '1'
+      }
+      {
+        name: 'HelloWorldApp:Settings:GreetingConfiguration'
+        value: 'CNS'
+      }
+    ]
   }
 }
 
@@ -97,6 +107,12 @@ module containerEnvironment 'br/public:avm/res/app/managed-environment:0.8.0' = 
     location: location
     logAnalyticsWorkspaceResourceId: logAnalyticsWorkspace.outputs.resourceId
     zoneRedundant: false
+    workloadProfiles: [
+      {
+        name: 'Consumption'
+        workloadProfileType: 'Consumption'
+      }
+    ]
   }
 }
 
@@ -151,6 +167,7 @@ module roleAssignment1 'br/public:avm/ptn/authorization/resource-role-assignment
   params: {
     resourceId: containerRegistry.id
     principalId: identity.outputs.principalId
+    principalType: 'ServicePrincipal'
     roleDefinitionId: 'b24988ac-6180-42a0-ab88-20f7382dd24c'
     roleName: 'Contributor'
   }
@@ -161,6 +178,7 @@ module roleAssignment6 'br/public:avm/ptn/authorization/resource-role-assignment
   params: {
     resourceId: configurationStore.outputs.resourceId
     principalId: containerApp.outputs.systemAssignedMIPrincipalId
+    principalType: 'ServicePrincipal'
     roleDefinitionId: 'b24988ac-6180-42a0-ab88-20f7382dd24c'
     roleName: 'App Configuration Data Owner'
   }
