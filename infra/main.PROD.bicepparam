@@ -1,4 +1,4 @@
 using './main.bicep'
 
-param imageVersion = 'cnssharedcr.azurecr.io/helloworld:sha-0d4f876'
+param imageVersion = 'cnssharedcr.azurecr.io/helloworld:sha-83cb921'
 param environmentName = 'prod'
