@@ -28,6 +28,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Debug --parameters
+        run: |
+          echo "github-ref: ${{ github.ref }}"
+          echo "pull_request.base.ref: ${{ github.event.pull_request.base.ref }}"
+          echo "ENVIRONMENT: ${{ env.ENVIRONMENT }}"
+          echo "---"
+          ls -la infra
+          echo "---"
+          cat infra/main.${{ env.ENVIRONMENT }}.bicepparam
+          
       - name: Azure login
         uses: azure/login@v2
         with:
@@ -41,16 +51,6 @@ jobs:
             "tenantId":"${{ env.TENANT_ID }}"
             }
 
-      - name: Debug --parameters
-        run: |
-          echo "github-ref: ${{ github.ref }}"
-          echo "pull_request.base.ref: ${{ github.event.pull_request.base.ref }}"
-          echo "ENVIRONMENT: ${{ env.ENVIRONMENT }}"
-          echo "---"
-          ls -la infra
-          echo "---"
-          cat infra/main.${{ env.ENVIRONMENT }}.bicepparam
-          
       - name: Make deployment plan
         id: deploymentplan
         run: |
