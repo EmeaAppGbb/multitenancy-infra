@@ -1,5 +1,5 @@
 
-name: Reconciliation
+name: TestReconciliation
 run-name: '[PR #${{github.event.pull_request.number}}] [Continuos Reconciliation] [EnvironmentL: ${{ github.ref }}]'
 
 on:
