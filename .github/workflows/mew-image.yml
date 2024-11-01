@@ -10,8 +10,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: main
+          ref: dev
           repository: ${{ github.repository }}
+      - name: Show environment variables
+        run: |
+          echo "GH_APP_ID: 1035614"
+          echo "GH_APP_PRIVATE_KEY: ${{ secrets.GH_APP_PRIVATE_KEY }}"
+          echo "repository_owner: ${{ github.repository_owner }}"
       - name: Create a new branch
         run: |
           git checkout -b bot/update-app-$GITHUB_RUN_NUMBER
@@ -19,8 +24,13 @@ jobs:
         env:
           IMAGE: ${{ github.event.client_payload.image }}
         run: |
-          sed -i 's|imageVersion: .*:.*|imageVersion: '"$IMAGE"'|' ./infra/main.DEV.bicepparam
-          sed -i 's|imageVersion: .*:.*|imageVersion: '"$IMAGE"'|' ./infra/main.PROD.bicepparam
+          echo "Updating image to $IMAGE"
+          sed -i "s|param imageVersion = '.*'|param imageVersion = '$IMAGE'|" ./infra/main.DEV.bicepparam
+          sed -i "s|param imageVersion = '.*'|param imageVersion = '$IMAGE'|" ./infra/main.PROD.bicepparam
+          echo "---DEV---"
+          echo $(cat ./infra/main.DEV.bicepparam)
+          echo "---PROD---"
+          echo $(cat ./infra/main.PROD.bicepparam)
       - name: Commit and push changes
         run: |
           git config --global user.name 'github-actions[bot]'
@@ -34,11 +44,11 @@ jobs:
         id: generate-token
         uses: actions/create-github-app-token@v1
         with:
-            app-id: ${{ secrets.APP_ID }}
-            private-key: ${{ secrets.APP_PRIVATE_KEY }}
+            app-id: 1035614
+            private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
             owner: ${{ github.repository_owner }}
       - name: Create a PR
         run: |
-          gh pr create --title "Update hello-world-app" --body "Update app image" --head bot/update-app-$GITHUB_RUN_NUMBER --base main
+          gh pr create --title "Update hello-world-app" --body "Update app image" --head bot/update-app-$GITHUB_RUN_NUMBER --base dev
         env:
           GH_TOKEN: ${{ steps.generate-token.outputs.token }}
