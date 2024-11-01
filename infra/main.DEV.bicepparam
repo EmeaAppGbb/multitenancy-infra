@@ -7,7 +7,7 @@ param tenantList = [
   {
     name: 'demotenant1'
     location: 'swedencentral'
-    includeApp: false
+    includeApp: true
     includeDataAndML: false
   }
 ]
