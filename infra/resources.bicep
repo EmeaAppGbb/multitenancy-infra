@@ -87,12 +87,6 @@ module configurationStore 'br/public:avm/res/app-configuration/configuration-sto
     location: location
     disableLocalAuth: false
     softDeleteRetentionInDays: 1
-    roleAssignments: [
-      {
-        roleDefinitionIdOrName: 'App Configuration Data Owner'
-        principalId: containerApp.outputs.systemAssignedMIPrincipalId
-      }
-    ]
   }
 }
 
@@ -132,6 +126,12 @@ module containerApp 'br/public:avm/res/app/container-app:0.9.0' = if (deployment
           cpu: '0.25'
           memory: '0.5Gi'
         }
+        env: [
+          {
+            name: 'AppConfig__Endpoint'
+            value: configurationStore.outputs.endpoint
+          }
+        ]
       }
     ]
   }
@@ -153,6 +153,16 @@ module roleAssignment1 'br/public:avm/ptn/authorization/resource-role-assignment
     principalId: identity.outputs.principalId
     roleDefinitionId: 'b24988ac-6180-42a0-ab88-20f7382dd24c'
     roleName: 'Contributor'
+  }
+}
+
+module roleAssignment6 'br/public:avm/ptn/authorization/resource-role-assignment:0.1.1' = if (deployment.includeApp) {
+  name: '${prefix}-role-assignment-6'
+  params: {
+    resourceId: configurationStore.outputs.resourceId
+    principalId: containerApp.outputs.systemAssignedMIPrincipalId
+    roleDefinitionId: 'b24988ac-6180-42a0-ab88-20f7382dd24c'
+    roleName: 'App Configuration Data Owner'
   }
 }
 

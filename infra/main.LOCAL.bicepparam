@@ -5,9 +5,9 @@ param environmentName = 'local'
 
 param tenantList = [
   {
-    name: 'cnsdev8'
+    name: 'cnsdev'
     location: 'swedencentral'
     includeApp: true
-    includeDataAndML: false
+    includeDataAndML: true
   }
 ]
