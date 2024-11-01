@@ -1,10 +1,9 @@
 targetScope = 'subscription'
 
 param imageVersion string
-param tenants array?
+param tenantList array
 param environmentName string
 
-var tenantList = tenants ?? loadJsonContent('tenants.json')
 var prefix = 'cns-${environmentName}-tenant' // Must match value in Remove-Tenants.ps1
 
 resource resrouceGroup 'Microsoft.Resources/resourceGroups@2024-03-01' = [

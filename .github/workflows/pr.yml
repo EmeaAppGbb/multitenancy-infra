@@ -50,17 +50,7 @@ jobs:
             "subscriptionId":"${{ env.SUBSCRIPTION_ID }}",
             "tenantId":"${{ env.TENANT_ID }}"
             }
-
-      - name: Debug --parameters
-        run: |
-          echo "github-ref: ${{ github.ref }}"
-          echo "pull_request.base.ref: ${{ github.event.pull_request.base.ref }}"
-          echo "ENVIRONMENT: ${{ env.ENVIRONMENT }}"
-          echo "---"
-          ls -la infra
-          echo "---"
-          cat infra/main.${{ env.ENVIRONMENT }}.bicepparam
-          
+         
       - name: Make deployment plan
         id: deploymentplan
         run: |
