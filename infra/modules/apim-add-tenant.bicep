@@ -3,7 +3,7 @@ param kustoName string
 param kustoRg string
 param tenantName string
 
-resource service 'Microsoft.ApiManagement/service@2023-05-01-preview' existing = {
+resource service 'Microsoft.ApiManagement/service@2024-05-01' existing = {
   name: apimName
 }
 
@@ -12,16 +12,18 @@ resource kustoCluster 'Microsoft.Kusto/clusters@2023-08-15' existing = {
   name: kustoName
 }
 
-resource subscription 'Microsoft.ApiManagement/service/subscriptions@2022-08-01' = {
+#disable-next-line BCP081
+resource subscription 'Microsoft.ApiManagement/service/subscriptions@2024-06-01-preview' = {
   parent: service
-  name: 'sub-${tenantName}'
+  name: tenantName
   properties: {
-    displayName: 'sub-${tenantName}'
+    displayName: tenantName
     scope: '/products/demo-apis'
   }
 }
 
-resource backend 'Microsoft.ApiManagement/service/backends@2024-05-01' = {
+#disable-next-line BCP081
+resource backend 'Microsoft.ApiManagement/service/backends@2024-06-01-preview' = {
   parent: service
   name: tenantName
   properties: {
