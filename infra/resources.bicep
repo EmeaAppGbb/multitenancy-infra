@@ -23,6 +23,60 @@ resource containerRegistry 'Microsoft.ContainerRegistry/registries@2023-07-01' e
 }
 
 //
+// Common
+//
+module logAnalyticsWorkspace 'br/public:avm/res/operational-insights/workspace:0.7.0' = {
+  name: '${prefix}-log'
+  params: {
+    name: '${prefix}-log'
+    location: location
+    dataExports: deployment.includeDataAndML
+      ? [
+          {
+            destination: {
+              metaData: {
+                eventHubName: 'SucceededIngestion'
+              }
+              resourceId: eventHubNamespace.outputs.resourceId
+            }
+            enable: true
+            name: 'SucceededIngestion'
+            tableNames: [
+              'SucceededIngestion'
+            ]
+          }
+          {
+            destination: {
+              metaData: {
+                eventHubName: 'FailedIngestion'
+              }
+              resourceId: eventHubNamespace.outputs.resourceId
+            }
+            enable: true
+            name: 'FailedIngestion'
+            tableNames: [
+              'FailedIngestion'
+            ]
+          }
+          {
+            destination: {
+              metaData: {
+                eventHubName: 'IngestionBatching'
+              }
+              resourceId: eventHubNamespace.outputs.resourceId
+            }
+            enable: true
+            name: 'IngestionBatching'
+            tableNames: [
+              'ADXIngestionBatching'
+            ]
+          }
+        ]
+      : []
+  }
+}
+
+//
 // App
 //
 module configurationStore 'br/public:avm/res/app-configuration/configuration-store:0.5.1' = if (deployment.includeApp) {
@@ -105,57 +159,6 @@ module roleAssignment1 'br/public:avm/ptn/authorization/resource-role-assignment
 //
 // Data & ML
 // 
-module logAnalyticsWorkspace 'br/public:avm/res/operational-insights/workspace:0.7.0' = if (deployment.includeDataAndML) {
-  name: '${prefix}-log'
-  params: {
-    name: '${prefix}-log'
-    location: location
-    dataExports: deployment.includeDataAndML
-      ? [
-          {
-            destination: {
-              metaData: {
-                eventHubName: 'SucceededIngestion'
-              }
-              resourceId: eventHubNamespace.outputs.resourceId
-            }
-            enable: true
-            name: 'SucceededIngestion'
-            tableNames: [
-              'SucceededIngestion'
-            ]
-          }
-          {
-            destination: {
-              metaData: {
-                eventHubName: 'FailedIngestion'
-              }
-              resourceId: eventHubNamespace.outputs.resourceId
-            }
-            enable: true
-            name: 'FailedIngestion'
-            tableNames: [
-              'FailedIngestion'
-            ]
-          }
-          {
-            destination: {
-              metaData: {
-                eventHubName: 'IngestionBatching'
-              }
-              resourceId: eventHubNamespace.outputs.resourceId
-            }
-            enable: true
-            name: 'IngestionBatching'
-            tableNames: [
-              'ADXIngestionBatching'
-            ]
-          }
-        ]
-      : []
-  }
-}
-
 module applicationInsights 'br/public:avm/res/insights/component:0.4.1' = if (deployment.includeDataAndML) {
   name: '${prefix}-app-insights'
   params: {
@@ -165,7 +168,7 @@ module applicationInsights 'br/public:avm/res/insights/component:0.4.1' = if (de
   }
 }
 
-module keyVault 'br/public:avm/res/key-vault/vault:0.9.0' = {
+module keyVault 'br/public:avm/res/key-vault/vault:0.9.0' = if (deployment.includeDataAndML) {
   name: '${prefix}-key-vault'
   params: {
     name: '${prefix}-kv'
