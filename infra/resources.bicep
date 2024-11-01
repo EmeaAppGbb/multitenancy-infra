@@ -1,6 +1,11 @@
 param deployment object
 param imageVersion string
 
+param aadClientId string // = 'shoud_be_tenant_based'
+param aadTenantId string // = 'shoud_be_tenant_based'
+@secure()
+param aadSecret string // = 'shoud_be_tenant_based'
+
 var prefix = deployment.name
 var location = deployment.location
 
@@ -11,6 +16,8 @@ var apimName = 'customertenant001APIM'
 var landingContainerName = 'landing'
 var demoGroupId = '8691cafd-ff9e-4817-98b4-2ef749b2b041' // DemoDataApp-GitOps
 var apimClientId = 'cd4f6b8d-7d8e-4742-8ae7-3d38038c186b'
+
+
 
 // Resource type abbreviations: https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/ready/azure-best-practices/resource-abbreviations
 
@@ -128,6 +135,14 @@ module containerApp 'br/public:avm/res/app/container-app:0.9.0' = if (deployment
         identity.outputs.resourceId
       ]
     }
+    secrets: {
+      secureList: [
+        {
+          name: 'microsoft-provider-authentication-secret'
+          value: aadSecret
+        }
+      ]
+    }
     registries: [
       {
         server: containerRegistry.properties.loginServer
@@ -150,6 +165,15 @@ module containerApp 'br/public:avm/res/app/container-app:0.9.0' = if (deployment
         ]
       }
     ]
+  }
+}
+
+module easyAuth 'modules/aca-auth.bicep' = if (deployment.includeApp) {
+  name: 'aca-easy-auth'
+  params: {
+    containerAppName: containerApp.outputs.name
+    aadClientId: aadClientId
+    aadTenantId: aadTenantId
   }
 }
 
