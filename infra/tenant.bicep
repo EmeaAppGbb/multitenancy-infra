@@ -237,7 +237,7 @@ module roleAssignment6 'br/public:avm/ptn/authorization/resource-role-assignment
     resourceId: configurationStore.outputs.resourceId
     principalId: containerApp.outputs.systemAssignedMIPrincipalId
     principalType: 'ServicePrincipal'
-    roleDefinitionId: 'b24988ac-6180-42a0-ab88-20f7382dd24c'
+    roleDefinitionId: '5ae67dd6-50cb-40e7-96ff-dc2bfa4b606b'
     roleName: 'App Configuration Data Owner'
   }
 }
