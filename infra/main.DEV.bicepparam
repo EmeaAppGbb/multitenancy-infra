@@ -17,4 +17,10 @@ param tenantList = [
     includeApp: true
     includeDataAndML: false
   }
+  {
+    name: 'globallyuniquetenantname'
+    location: 'swedencentral'
+    includeApp: true
+    includeDataAndML: false
+  }
 ]
