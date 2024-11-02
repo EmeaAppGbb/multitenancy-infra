@@ -165,7 +165,38 @@ module containerApp 'br/public:avm/res/app/container-app:0.9.0' = if (deployment
             value: configurationStore.outputs.endpoint
           }
         ]
+        probes: [
+          {
+              type: 'Liveness'
+              initialDelaySeconds: 15
+              periodSeconds: 30
+              failureThreshold: 3
+              timeoutSeconds: 1
+              httpGet: {
+                  port: 80
+                  path: '/healthz/liveness'
+              }
+          }
+          {
+              type: 'Startup'
+              timeoutSeconds: 2
+              httpGet: {
+                  port: 80
+                  path: '/healthz/startup'
+              }
+          }
+          {
+              type: 'Readiness'
+              timeoutSeconds: 3
+              failureThreshold: 3
+              httpGet: {
+                  port: 80
+                  path: '/healthz/readiness'
+              }
+          }
+        ]
       }
+      
     ]
   }
 }
