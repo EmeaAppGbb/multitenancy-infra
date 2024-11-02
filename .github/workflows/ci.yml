@@ -55,6 +55,7 @@ jobs:
       - name: Deploy Bicep template
         uses: azure/arm-deploy@v2
         with:
+          deploymentName: 'deployment-${{github.sha}}'
           scope: subscription
           subscriptionId: ${{ env.SUBSCRIPTION_ID }}
           template: infra/main.bicep

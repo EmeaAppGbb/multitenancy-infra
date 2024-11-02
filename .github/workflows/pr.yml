@@ -52,7 +52,7 @@ jobs:
         id: deploymentplan
         run: |
           # --parameters easyAuthSPSecret=${{ secrets.EASYAUTH_SP_SECRET }}
-          az deployment sub create --location westeurope --template-file infra/main.bicep --parameters infra/main.${{ env.ENVIRONMENT }}.bicepparam --what-if >> plan.txt
+          az deployment sub create --name "pr-${{github.event.pull_request.number}}" --location westeurope --template-file infra/main.bicep --parameters infra/main.${{ env.ENVIRONMENT }}.bicepparam --what-if >> plan.txt
           echo "$(cat plan.txt)"         
 
       - uses: actions/github-script@v7
