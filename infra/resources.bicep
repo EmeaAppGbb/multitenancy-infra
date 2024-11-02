@@ -96,7 +96,7 @@ module configurationStore 'br/public:avm/res/app-configuration/configuration-sto
     softDeleteRetentionInDays: 1
     keyValues:[
       {
-        name: 'HelloWorldApp:Settings:Sentinel'
+        name: 'Sentinel'
         value: '1'
       }
       {
