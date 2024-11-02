@@ -4,7 +4,7 @@ param imageVersion string
 param tenantList array
 param environmentName string
 
-//@secure()
+// [easyauth] @secure()
 // param easyAuthSPSecret string
 var prefix = 'cns-${environmentName}-tenant' // Must match value in Remove-Tenants.ps1
 
@@ -20,7 +20,7 @@ module resources 'resources.bicep' = [
     name: '${prefix}-${tenantList[i].name}'
     scope: resrouceGroup[i]
     params: {
-      //aadSecret: easyAuthSPSecret
+      //[easyauth] aadSecret: easyAuthSPSecret
       deployment: tenantList[i]
       imageVersion: imageVersion
     }

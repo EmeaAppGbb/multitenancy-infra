@@ -51,6 +51,7 @@ jobs:
           inlineScript: ./infra/Remove-Tenants.ps1 -EnvironmentName "${{ env.ENVIRONMENT }}"
           azPSVersion: latest
 
+      # --parameters easyAuthSPSecret=${{ secrets.EASYAUTH_SP_SECRET }}
       - name: Deploy Bicep template
         uses: azure/arm-deploy@v2
         with:
@@ -59,4 +60,4 @@ jobs:
           template: infra/main.bicep
           region: westeurope
           parameters: >
-            infra/main.${{ env.ENVIRONMENT }}.bicepparam easyAuthSPSecret=${{ secrets.EASYAUTH_SP_SECRET }}
+            infra/main.${{ env.ENVIRONMENT }}.bicepparam

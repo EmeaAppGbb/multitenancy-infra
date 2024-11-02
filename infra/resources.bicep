@@ -11,7 +11,7 @@ var apimName = 'customertenant001APIM'
 var landingContainerName = 'landing'
 var demoGroupId = '8691cafd-ff9e-4817-98b4-2ef749b2b041' // DemoDataApp-GitOps
 var apimClientId = 'cd4f6b8d-7d8e-4742-8ae7-3d38038c186b'
-// [easyauith] Params for ACA easyauth
+// [easyauth]
 // @secure()
 // param aadSecret string // = 'shoud_be_tenant_based'
 // var aadClientId = '92d6b876-76df-4eb9-8a63-46ddcebae4c6' // = 'shoud_be_tenant_based'
@@ -135,7 +135,7 @@ module containerApp 'br/public:avm/res/app/container-app:0.9.0' = if (deployment
         identity.outputs.resourceId
       ]
     }
-    // [easyauith]
+    // [easyauth]
     // secrets: {
     //   secureList: [
     //     {
@@ -169,7 +169,7 @@ module containerApp 'br/public:avm/res/app/container-app:0.9.0' = if (deployment
   }
 }
 
-// [easyauith]
+// [easyauth]
 // module easyAuth 'modules/aca-auth.bicep' = if (deployment.includeApp) {
 //   name: 'aca-easy-auth'
 //   params: {
