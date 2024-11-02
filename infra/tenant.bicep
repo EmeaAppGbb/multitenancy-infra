@@ -1,5 +1,6 @@
 param deployment object
 param imageVersion string
+param greetingName string
 
 var prefix = deployment.name
 var location = deployment.location
@@ -101,7 +102,7 @@ module configurationStore 'br/public:avm/res/app-configuration/configuration-sto
       }
       {
         name: 'GreetingConfiguration'
-        value: 'CNS Customer'
+        value: greetingName
       }
     ]
   }

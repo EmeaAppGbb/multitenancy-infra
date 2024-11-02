@@ -15,12 +15,13 @@ resource resrouceGroup 'Microsoft.Resources/resourceGroups@2024-03-01' = [
   }
 ]
 
-module resources 'resources.bicep' = [
+module tenant 'tenant.bicep' = [
   for i in range(0, length(tenantList)): {
     name: '${prefix}-${tenantList[i].name}'
     scope: resrouceGroup[i]
     params: {
       //[easyauth] aadSecret: easyAuthSPSecret
+      greetingName: tenantList[i].greetingName
       deployment: tenantList[i]
       imageVersion: imageVersion
     }
