@@ -11,11 +11,11 @@ var apimName = 'customertenant001APIM'
 var landingContainerName = 'landing'
 var demoGroupId = '8691cafd-ff9e-4817-98b4-2ef749b2b041' // DemoDataApp-GitOps
 var apimClientId = 'cd4f6b8d-7d8e-4742-8ae7-3d38038c186b'
-// Params for ACA easyauth
-@secure()
-param aadSecret string // = 'shoud_be_tenant_based'
-var aadClientId = '92d6b876-76df-4eb9-8a63-46ddcebae4c6' // = 'shoud_be_tenant_based'
-var aadTenantId = '380adf45-465e-486c-92c1-a3a9e4f6c62d' // = 'shoud_be_tenant_based'
+// [easyauith] Params for ACA easyauth
+// @secure()
+// param aadSecret string // = 'shoud_be_tenant_based'
+// var aadClientId = '92d6b876-76df-4eb9-8a63-46ddcebae4c6' // = 'shoud_be_tenant_based'
+// var aadTenantId = '380adf45-465e-486c-92c1-a3a9e4f6c62d' // = 'shoud_be_tenant_based'
 
 
 
@@ -135,14 +135,15 @@ module containerApp 'br/public:avm/res/app/container-app:0.9.0' = if (deployment
         identity.outputs.resourceId
       ]
     }
-    secrets: {
-      secureList: [
-        {
-          name: 'microsoft-provider-authentication-secret'
-          value: aadSecret
-        }
-      ]
-    }
+    // [easyauith]
+    // secrets: {
+    //   secureList: [
+    //     {
+    //       name: 'microsoft-provider-authentication-secret'
+    //       value: aadSecret
+    //     }
+    //   ]
+    // }
     registries: [
       {
         server: containerRegistry.properties.loginServer
@@ -168,14 +169,15 @@ module containerApp 'br/public:avm/res/app/container-app:0.9.0' = if (deployment
   }
 }
 
-module easyAuth 'modules/aca-auth.bicep' = if (deployment.includeApp) {
-  name: 'aca-easy-auth'
-  params: {
-    containerAppName: containerApp.outputs.name
-    aadClientId: aadClientId
-    aadTenantId: aadTenantId
-  }
-}
+// [easyauith]
+// module easyAuth 'modules/aca-auth.bicep' = if (deployment.includeApp) {
+//   name: 'aca-easy-auth'
+//   params: {
+//     containerAppName: containerApp.outputs.name
+//     aadClientId: aadClientId
+//     aadTenantId: aadTenantId
+//   }
+// }
 
 module identity 'br/public:avm/res/managed-identity/user-assigned-identity:0.4.0' = if (deployment.includeApp) {
   name: 'admin-app-identity'
