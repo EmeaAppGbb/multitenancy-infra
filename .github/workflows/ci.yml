@@ -51,9 +51,11 @@ jobs:
           inlineScript: ./infra/Remove-Tenants.ps1 -EnvironmentName "${{ env.ENVIRONMENT }}"
           azPSVersion: latest
 
+      # --parameters easyAuthSPSecret=${{ secrets.EASYAUTH_SP_SECRET }}
       - name: Deploy Bicep template
         uses: azure/arm-deploy@v2
         with:
+          deploymentName: 'deployment-${{github.sha}}'
           scope: subscription
           subscriptionId: ${{ env.SUBSCRIPTION_ID }}
           template: infra/main.bicep

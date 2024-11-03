@@ -11,11 +11,11 @@ var apimName = 'customertenant001APIM'
 var landingContainerName = 'landing'
 var demoGroupId = '8691cafd-ff9e-4817-98b4-2ef749b2b041' // DemoDataApp-GitOps
 var apimClientId = 'cd4f6b8d-7d8e-4742-8ae7-3d38038c186b'
-// Params for ACA easyauth
-@secure()
-param aadSecret string // = 'shoud_be_tenant_based'
-var aadClientId = '92d6b876-76df-4eb9-8a63-46ddcebae4c6' // = 'shoud_be_tenant_based'
-var aadTenantId = '380adf45-465e-486c-92c1-a3a9e4f6c62d' // = 'shoud_be_tenant_based'
+// [easyauth]
+// @secure()
+// param aadSecret string // = 'shoud_be_tenant_based'
+// var aadClientId = '92d6b876-76df-4eb9-8a63-46ddcebae4c6' // = 'shoud_be_tenant_based'
+// var aadTenantId = '380adf45-465e-486c-92c1-a3a9e4f6c62d' // = 'shoud_be_tenant_based'
 
 
 
@@ -86,26 +86,9 @@ module logAnalyticsWorkspace 'br/public:avm/res/operational-insights/workspace:0
 //
 // App
 //
-module configurationStore 'br/public:avm/res/app-configuration/configuration-store:0.5.1' = if (deployment.includeApp) {
-  name: '${prefix}-configuration-store'
-  params: {
-    name: '${prefix}-appcs'
-    enablePurgeProtection: false
-    location: location
-    disableLocalAuth: false
-    softDeleteRetentionInDays: 1
-    keyValues:[
-      {
-        name: 'HelloWorldApp:Settings:Sentinel'
-        value: '1'
-      }
-      {
-        name: 'GreetingConfiguration'
-        value: 'CNS Customer'
-      }
-    ]
-  }
-}
+resource configurationStore 'Microsoft.AppConfiguration/configurationStores@2023-03-01' existing = {
+  name: '${prefix}-appcs'
+} 
 
 module containerEnvironment 'br/public:avm/res/app/managed-environment:0.8.0' = if (deployment.includeApp) {
   name: '${prefix}-managed-environment'
@@ -135,14 +118,15 @@ module containerApp 'br/public:avm/res/app/container-app:0.9.0' = if (deployment
         identity.outputs.resourceId
       ]
     }
-    secrets: {
-      secureList: [
-        {
-          name: 'microsoft-provider-authentication-secret'
-          value: aadSecret
-        }
-      ]
-    }
+    // [easyauth]
+    // secrets: {
+    //   secureList: [
+    //     {
+    //       name: 'microsoft-provider-authentication-secret'
+    //       value: aadSecret
+    //     }
+    //   ]
+    // }
     registries: [
       {
         server: containerRegistry.properties.loginServer
@@ -160,22 +144,58 @@ module containerApp 'br/public:avm/res/app/container-app:0.9.0' = if (deployment
         env: [
           {
             name: 'AppConfig__Endpoint'
-            value: configurationStore.outputs.endpoint
+            value: configurationStore.listKeys().value[0].connectionString
+          }
+          {
+            name: 'Language'
+            value: 'spanish'
           }
         ]
+        // probes: [
+        //   {
+        //       type: 'Liveness'
+        //       initialDelaySeconds: 15
+        //       periodSeconds: 30
+        //       failureThreshold: 3
+        //       timeoutSeconds: 1
+        //       httpGet: {
+        //           port: 80
+        //           path: '/healthz/liveness'
+        //       }
+        //   }
+        //   {
+        //       type: 'Startup'
+        //       timeoutSeconds: 2
+        //       httpGet: {
+        //           port: 80
+        //           path: '/healthz/startup'
+        //       }
+        //   }
+        //   {
+        //       type: 'Readiness'
+        //       timeoutSeconds: 3
+        //       failureThreshold: 3
+        //       httpGet: {
+        //           port: 80
+        //           path: '/healthz/readiness'
+        //       }
+        //   }
+        // ]
       }
+      
     ]
   }
 }
 
-module easyAuth 'modules/aca-auth.bicep' = if (deployment.includeApp) {
-  name: 'aca-easy-auth'
-  params: {
-    containerAppName: containerApp.outputs.name
-    aadClientId: aadClientId
-    aadTenantId: aadTenantId
-  }
-}
+// [easyauth]
+// module easyAuth 'modules/aca-auth.bicep' = if (deployment.includeApp) {
+//   name: 'aca-easy-auth'
+//   params: {
+//     containerAppName: containerApp.outputs.name
+//     aadClientId: aadClientId
+//     aadTenantId: aadTenantId
+//   }
+// }
 
 module identity 'br/public:avm/res/managed-identity/user-assigned-identity:0.4.0' = if (deployment.includeApp) {
   name: 'admin-app-identity'
@@ -197,16 +217,16 @@ module roleAssignment1 'br/public:avm/ptn/authorization/resource-role-assignment
   }
 }
 
-module roleAssignment6 'br/public:avm/ptn/authorization/resource-role-assignment:0.1.1' = if (deployment.includeApp) {
-  name: '${prefix}-role-assignment-6'
-  params: {
-    resourceId: configurationStore.outputs.resourceId
-    principalId: containerApp.outputs.systemAssignedMIPrincipalId
-    principalType: 'ServicePrincipal'
-    roleDefinitionId: 'b24988ac-6180-42a0-ab88-20f7382dd24c'
-    roleName: 'App Configuration Data Owner'
-  }
-}
+// module roleAssignment6 'br/public:avm/ptn/authorization/resource-role-assignment:0.1.1' = if (deployment.includeApp) {
+//   name: '${prefix}-role-assignment-6'
+//   params: {
+//     resourceId: configurationStore.outputs.resourceId
+//     principalId: containerApp.outputs.systemAssignedMIPrincipalId
+//     principalType: 'ServicePrincipal'
+//     roleDefinitionId: '5ae67dd6-50cb-40e7-96ff-dc2bfa4b606b'
+//     roleName: 'App Configuration Data Owner'
+//   }
+// }
 
 //
 // Data & ML
