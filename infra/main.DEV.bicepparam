@@ -5,4 +5,11 @@ param environmentName = 'dev'
 
 
 param tenantList = [
+    {
+        name: 'customertenant790'
+        greetingName: 'Dear Customer'
+        location: 'swedencentral'
+        includeApp: true
+        includeDataAndML: false
+    }
 ]
