@@ -6,7 +6,7 @@ param environmentName = 'dev'
 
 param tenantList = [
     {
-        name: 'customertenant790'
+        name: 'customertenant792'
         greetingName: 'Dear Customer'
         location: 'swedencentral'
         includeApp: true
