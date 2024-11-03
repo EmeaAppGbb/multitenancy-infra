@@ -146,6 +146,10 @@ module containerApp 'br/public:avm/res/app/container-app:0.9.0' = if (deployment
             name: 'AppConfig__Endpoint'
             value: configurationStore.listKeys().value[0].connectionString
           }
+          {
+            name: 'Language'
+            value: 'spanish'
+          }
         ]
         // probes: [
         //   {
