@@ -6,7 +6,7 @@ param environmentName = 'prod'
 
 param tenantList = [
   {
-    name: 'realtenant'
+    name: 'dirktenant'
     greetingName: 'Customer'
     location: 'swedencentral'
     includeApp: true
