@@ -106,6 +106,18 @@ module containerEnvironment 'br/public:avm/res/app/managed-environment:0.8.0' = 
   }
 }
 
+resource additionalStorageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
+  name: '${prefix}additionalst'
+  location: location
+  sku: {
+    name: 'Standard_LRS'
+  }
+  kind: 'StorageV2'
+  properties: {
+    accessTier: 'Hot'
+  }
+}
+
 module containerApp 'br/public:avm/res/app/container-app:0.9.0' = if (deployment.includeApp) {
   name: '${prefix}-container-app'
   params: {
