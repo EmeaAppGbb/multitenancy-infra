@@ -26,4 +26,11 @@ param tenantList = [
     includeApp: true
     includeDataAndML: true
   }
+  {
+    name: 'demo1tenant3'
+    greetingName: 'Tenant 3'
+    location: 'swedencentral'
+    includeApp: true
+    includeDataAndML: true
+  }
 ]
