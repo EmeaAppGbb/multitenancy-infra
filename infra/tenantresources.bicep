@@ -91,7 +91,7 @@ resource configurationStore 'Microsoft.AppConfiguration/configurationStores@2023
 } 
 
 resource documentsStorageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
-  name: '${prefix}storage'
+  name: 'Carlos'
   location: location
   sku: {
     name: 'Standard_LRS'
