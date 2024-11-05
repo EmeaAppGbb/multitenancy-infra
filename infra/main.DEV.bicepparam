@@ -10,7 +10,6 @@ param tenantList = [
     location: 'swedencentral'
     includeApp: true
     includeDataAndML: false
-    storageAccountName: 'cnstenant333storage'
   }
   {
     name: 'cnstenant444'
@@ -18,7 +17,6 @@ param tenantList = [
     location: 'swedencentral'
     includeApp: true
     includeDataAndML: false
-    storageAccountName: 'cnstenant444storage'
   }
   {
     name: 'cnstenant-madrid'
@@ -26,6 +24,5 @@ param tenantList = [
     location: 'swedencentral'
     includeApp: true
     includeDataAndML: false
-    storageAccountName: 'cnstenantmadridstorage'
   }
 ]
