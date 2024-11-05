@@ -1,5 +1,6 @@
 param deployment object
 param imageVersion string
+param storageAccountName string
 
 var prefix = deployment.name
 var location = deployment.location
@@ -102,6 +103,29 @@ resource documentsStorageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' 
   }
 }
 
+resource tenantStorageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
+  name: '${prefix}tenantstorage'
+  location: location
+  sku: {
+    name: 'Standard_LRS'
+  }
+  kind: 'StorageV2'
+  properties: {
+    accessTier: 'Hot'
+  }
+}
+
+resource xmlStorageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
+  name: '${prefix}xmlstorage'
+  location: location
+  sku: {
+    name: 'Standard_LRS'
+  }
+  kind: 'StorageV2'
+  properties: {
+    accessTier: 'Hot'
+  }
+}
 
 module containerEnvironment 'br/public:avm/res/app/managed-environment:0.8.0' = if (deployment.includeApp) {
   name: '${prefix}-managed-environment'

@@ -3,6 +3,7 @@ targetScope = 'subscription'
 param imageVersion string
 param tenantList array
 param environmentName string
+param storageAccountName string
 
 // [easyauth] @secure()
 // param easyAuthSPSecret string
@@ -24,6 +25,7 @@ module tenant 'tenant.bicep' = [
       greetingName: tenantList[i].greetingName
       deployment: tenantList[i]
       imageVersion: imageVersion
+      storageAccountName: storageAccountName
     }
   }
 ]

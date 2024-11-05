@@ -11,6 +11,7 @@ param tenantList = [
     location: 'swedencentral'
     includeApp: true
     includeDataAndML: true
+    storageAccountName: 'dirktenantstorage'
   }
   {
     name: 'demo1tenant1'
@@ -18,6 +19,7 @@ param tenantList = [
     location: 'swedencentral'
     includeApp: true
     includeDataAndML: true
+    storageAccountName: 'demo1tenant1storage'
   }
   {
     name: 'demo1tenant2'
@@ -25,6 +27,7 @@ param tenantList = [
     location: 'swedencentral'
     includeApp: true
     includeDataAndML: true
+    storageAccountName: 'demo1tenant2storage'
   }
   {
     name: 'demo1tenant3'
@@ -32,5 +35,6 @@ param tenantList = [
     location: 'swedencentral'
     includeApp: true
     includeDataAndML: true
+    storageAccountName: 'demo1tenant3storage'
   }
 ]

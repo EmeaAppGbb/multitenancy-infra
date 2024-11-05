@@ -1,6 +1,7 @@
 param greetingName string
 param deployment object
 param imageVersion string
+param storageAccountName string
 
 var prefix = deployment.name
 
@@ -17,6 +18,7 @@ module tenant 'tenantresources.bicep' = {
   params: {
     deployment: deployment
     imageVersion: imageVersion
+    storageAccountName: storageAccountName
   }
 
   dependsOn: [

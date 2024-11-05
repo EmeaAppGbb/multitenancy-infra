@@ -10,5 +10,6 @@ param tenantList = [
     location: 'swedencentral'
     includeApp: true
     includeDataAndML: true
+    storageAccountName: 'cnsdevstorage'
   }
 ]

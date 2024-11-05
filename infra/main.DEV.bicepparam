@@ -3,7 +3,6 @@ using './main.bicep'
 param imageVersion = 'cnssharedcr.azurecr.io/helloworld:sha-b42aaba'
 param environmentName = 'dev'
 
-
 param tenantList = [
   {
     name: 'cnstenant333'
@@ -11,6 +10,7 @@ param tenantList = [
     location: 'swedencentral'
     includeApp: true
     includeDataAndML: false
+    storageAccountName: 'cnstenant333storage'
   }
   {
     name: 'cnstenant444'
@@ -18,6 +18,7 @@ param tenantList = [
     location: 'swedencentral'
     includeApp: true
     includeDataAndML: false
+    storageAccountName: 'cnstenant444storage'
   }
   {
     name: 'cnstenant-madrid'
@@ -25,5 +26,6 @@ param tenantList = [
     location: 'swedencentral'
     includeApp: true
     includeDataAndML: false
+    storageAccountName: 'cnstenantmadridstorage'
   }
 ]
